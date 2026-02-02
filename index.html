@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- TAILWIND CONFIG FOR CUSTOM THEMES -->
     <script>
         tailwind.config = {
             theme: {
@@ -47,7 +46,7 @@
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Admin Rainbow Animation (Input Box) - MATCHED COLORS */
+        /* Admin Rainbow Animation (Input Box) */
         @keyframes rainbow-border {
             0% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
             16% { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
@@ -58,7 +57,7 @@
             100% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
         }
         .rainbow-mode {
-            animation: rainbow-border 4s linear infinite; /* Matches bubble timing */
+            animation: rainbow-border 4s linear infinite;
             border-width: 2px !important;
             background-color: #18181b !important;
             color: #fff !important;
@@ -102,7 +101,7 @@
         }
         .aspect-video { aspect-ratio: 16 / 9; }
         
-        /* Message Bubble Hover Effect (New Fix) */
+        /* Message Bubble Hover Effect */
         .chat-bubble { transition: filter 0.2s; cursor: pointer; }
         .chat-bubble:hover { filter: brightness(1.1); }
 
@@ -190,11 +189,23 @@
                 </svg>
                 Reply
             </button>
-            <button id="menu-mute-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
+            <button id="menu-mute-btn" class="w-full text-left px-4 py-3 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 border border-yellow-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                 </svg>
-                Mute User (Admin)
+                Mute User
+            </button>
+            <button id="menu-kick-btn" class="w-full text-left px-4 py-3 bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                </svg>
+                Kick User
+            </button>
+            <button id="menu-ban-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                BAN USER
             </button>
         </div>
     </div>
@@ -248,8 +259,14 @@
                 <!-- Online Users List -->
                 <div class="mb-4 p-3 bg-zinc-950 rounded-lg border border-zinc-800">
                     <p class="text-[10px] font-bold text-zinc-500 uppercase mb-2">Users Online</p>
-                    <div id="online-users-list" class="space-y-1 max-h-32 overflow-y-auto">
-                        <!-- Populated by JS -->
+                    <div id="online-users-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
+                </div>
+
+                <!-- Banned Users List -->
+                <div class="mb-4 p-3 bg-red-950/20 rounded-lg border border-red-900/30">
+                    <p class="text-[10px] font-bold text-red-500 uppercase mb-2">Banned Users</p>
+                    <div id="banned-users-list" class="space-y-1 max-h-32 overflow-y-auto">
+                        <div class="text-zinc-600 text-xs italic">Loading...</div>
                     </div>
                 </div>
 
@@ -314,6 +331,7 @@
         let cloudBots = [];
         let botsEnabled = true;
         let mutedUsers = new Set();
+        let bannedUsers = new Set(); // New Ban Set
         let onlineUsers = {}; 
         let replyingTo = null; 
         let rainbowInterval = null;
@@ -347,7 +365,7 @@
             
             document.documentElement.style.setProperty('--brand-main', t.main);
             document.documentElement.style.setProperty('--brand-hover', t.hover);
-            document.documentElement.style.setProperty('--brand-dim', t.main + '33'); // 20% opacity
+            document.documentElement.style.setProperty('--brand-dim', t.main + '33'); 
             
             localStorage.setItem('ekaf_theme', colorName);
             currentTheme = colorName;
@@ -368,13 +386,12 @@
             if (rainbowInterval) {
                 clearInterval(rainbowInterval);
                 rainbowInterval = null;
-                setTheme(currentTheme); // Restore user theme
+                setTheme(currentTheme); 
             }
         }
 
         // --- BOOTSTRAP ---
         async function init() {
-            // Initialize Theme
             setTheme(currentTheme);
 
             if (SB_URL.includes("PASTE_YOUR_URL_HERE") || !SB_URL) {
@@ -386,6 +403,16 @@
             try {
                 sbClient = supabase.createClient(SB_URL, SB_KEY);
                 
+                // Fetch Bans
+                const { data: banData } = await sbClient.from('banned_users').select('user_name');
+                if (banData) {
+                    banData.forEach(r => bannedUsers.add(r.user_name));
+                    if (bannedUsers.has(currentUser)) {
+                        applyBan();
+                        return; // Stop loading if banned
+                    }
+                }
+
                 // Fetch Muted Users
                 const { data: muteData } = await sbClient.from('muted_users').select('user_name');
                 if (muteData) muteData.forEach(r => mutedUsers.add(r.user_name));
@@ -440,7 +467,7 @@
             channel
                 .on('presence', { event: 'sync' }, () => {
                     const state = channel.presenceState();
-                    onlineUsers = state; // Update local state
+                    onlineUsers = state; 
                     const count = Object.keys(state).length;
                     onlineBadge.textContent = `${count} ONLINE`;
                     if (isAdmin) renderAdminUserList();
@@ -476,6 +503,26 @@
                 })
                 .subscribe();
 
+            // Kicks
+            sbClient.channel('public:kicks')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kicks' }, payload => {
+                    if (payload.new.user_name === currentUser) applyKick();
+                })
+                .subscribe();
+
+            // BANS
+            sbClient.channel('public:banned_users')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'banned_users' }, payload => {
+                    bannedUsers.add(payload.new.user_name);
+                    if (payload.new.user_name === currentUser) applyBan();
+                    if (isAdmin) renderBannedUserList();
+                })
+                .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'banned_users' }, payload => {
+                    bannedUsers.delete(payload.old.user_name);
+                    if (isAdmin) renderBannedUserList();
+                })
+                .subscribe();
+
             // Settings
             sbClient.channel('public:settings')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'settings' }, payload => {
@@ -494,41 +541,45 @@
                 .subscribe();
         }
 
+        function applyKick() {
+            document.body.innerHTML = `
+                <div class="flex h-screen items-center justify-center bg-black text-red-600 flex-col gap-6 text-center">
+                    <div class="text-6xl">🥾</div>
+                    <div class="text-4xl font-black uppercase tracking-widest">KICKED</div>
+                    <div class="text-sm text-zinc-400 font-medium max-w-xs">You were kicked from the session.</div>
+                    <button onclick="location.reload()" class="bg-white text-black px-6 py-3 text-xs font-bold uppercase rounded-lg hover:bg-zinc-200 transition-colors">Rejoin</button>
+                </div>`;
+            sbClient.removeAllChannels();
+        }
+
+        function applyBan() {
+            document.body.innerHTML = `
+                <div class="flex h-screen items-center justify-center bg-red-950 text-white flex-col gap-6 text-center">
+                    <div class="text-6xl">🚫</div>
+                    <div class="text-4xl font-black uppercase tracking-widest">BANNED</div>
+                    <div class="text-sm text-red-200 font-medium max-w-xs">You have been permanently banned from SLAP CHAT.</div>
+                </div>`;
+            sbClient.removeAllChannels();
+        }
+
         async function sendMsg(text, user = currentUser, color = "text-brand", isBroadcast = false) {
             if (!sbClient) return;
+            if (mutedUsers.has(user)) return alert("You are muted.");
             
-            // Check Mute
-            if (mutedUsers.has(user)) {
-                alert("You have been muted by an admin.");
-                return;
-            }
-
-            // Spam Check
             const now = Date.now();
             if (!isAdmin && (now - lastMessageTime < SPAM_COOLDOWN_MS)) {
-                alert(`Whoa there! Please wait ${SPAM_COOLDOWN_MS/1000} seconds between messages.`);
-                return;
+                return alert(`Wait ${SPAM_COOLDOWN_MS/1000}s.`);
             }
             lastMessageTime = now;
             
-            if (!isClean(text)) {
-                alert("Restricted language detected.");
-                return;
-            }
+            if (!isClean(text)) return alert("Restricted language.");
             
             await sbClient.from('messages').insert([{ 
-                text, 
-                user_name: user, 
-                color, 
-                is_broadcast: isBroadcast,
-                avatar: currentAvatar,
-                reply_to: replyingTo 
+                text, user_name: user, color, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
             }]);
-
             cancelReply();
         }
 
-        // --- REPLY LOGIC ---
         function setReply(id, user, text) {
             replyingTo = { id, user, text };
             document.getElementById('reply-bar').classList.remove('hidden');
@@ -544,11 +595,9 @@
         }
         document.getElementById('cancel-reply').onclick = cancelReply;
 
-        // --- MUTE LOGIC ---
+        // --- ADMIN ACTIONS ---
         window.toggleMute = async (targetUser) => {
-            if (!isAdmin) return;
-            if (targetUser === "Admin1") return alert("Cannot mute admin.");
-
+            if (!isAdmin || targetUser === "Admin1") return;
             if (mutedUsers.has(targetUser)) {
                 await sbClient.from('muted_users').delete().eq('user_name', targetUser);
             } else {
@@ -557,7 +606,30 @@
             document.getElementById('message-menu').classList.add('hidden');
         };
 
-        // --- RENDER FUNCTIONS ---
+        window.kickUser = async (targetUser) => {
+            if (!isAdmin || targetUser === "Admin1") return;
+            if (confirm(`Kick ${targetUser}?`)) {
+                await sbClient.from('kicks').insert([{ user_name: targetUser }]);
+            }
+            document.getElementById('message-menu').classList.add('hidden');
+        };
+
+        window.banUser = async (targetUser) => {
+            if (!isAdmin || targetUser === "Admin1") return;
+            if (confirm(`PERMANENTLY BAN ${targetUser}?`)) {
+                await sbClient.from('banned_users').insert([{ user_name: targetUser }]);
+            }
+            document.getElementById('message-menu').classList.add('hidden');
+        };
+
+        window.unbanUser = async (targetUser) => {
+            if (!isAdmin) return;
+            if (confirm(`Unban ${targetUser}?`)) {
+                await sbClient.from('banned_users').delete().eq('user_name', targetUser);
+            }
+        };
+
+        // --- RENDER ---
         async function loadBots() {
             const { data } = await sbClient.from('bots').select('*');
             if (data) {
@@ -579,9 +651,7 @@
         }
 
         window.delBot = async (id) => {
-            if(isAdmin && sbClient) {
-                await sbClient.from('bots').delete().eq('id', id);
-            }
+            if(isAdmin && sbClient) await sbClient.from('bots').delete().eq('id', id);
         };
 
         function renderFullFeed(msgs) {
@@ -604,16 +674,11 @@
             const feed = document.getElementById('chat-feed');
             const isSelf = data.user_name === currentUser;
             const div = document.createElement('div');
-            
             div.id = `msg-${data.id}`;
-            const timeLabel = isLive ? "Just now" : "History";
-
+            
             div.onclick = (e) => {
                 if(e.target.tagName === 'BUTTON') return;
-                // Only open if clicking on the actual bubble content
-                if (e.target.closest('.chat-bubble')) {
-                    openMessageMenu(e, data);
-                }
+                if (e.target.closest('.chat-bubble')) openMessageMenu(e, data);
             };
             div.className = `message-wrapper relative group`;
 
@@ -627,8 +692,6 @@
                     : 'bg-zinc-800 text-zinc-200 border border-zinc-700 shadow-sm rounded-r-2xl rounded-tl-2xl';
 
                 if (data.user_name === "Admin1") bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white'; 
-                
-                // Add the target class for clicking
                 bubbleClass += ' chat-bubble';
 
                 const avatarHTML = data.avatar 
@@ -637,30 +700,10 @@
 
                 let replyHTML = '';
                 if (data.reply_to) {
-                    replyHTML = `
-                        <div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col">
-                            <span class="font-bold text-brand">${data.reply_to.user}</span>
-                            <span class="truncate max-w-[150px] italic">${data.reply_to.text}</span>
-                        </div>
-                    `;
+                    replyHTML = `<div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col"><span class="font-bold text-brand">${data.reply_to.user}</span><span class="truncate max-w-[150px] italic">${data.reply_to.text}</span></div>`;
                 }
 
-                div.innerHTML = `
-                    <div class="flex items-end gap-3 mb-1">
-                        ${!isSelf ? avatarHTML : ''}
-                        <div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}">
-                            <div class="flex items-center gap-2 mb-1 opacity-70">
-                                ${!isSelf ? `<span class="text-xs font-bold ${data.color || 'text-zinc-400'}">${data.user_name}</span>` : ''}
-                                <span class="text-[10px] text-zinc-600 font-bold uppercase tracking-wide">${timeLabel}</span>
-                                ${isSelf ? `<span class="text-xs font-bold text-brand">You</span>` : ''}
-                            </div>
-                            <div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">
-                                ${replyHTML}
-                                ${formatContent(data.text)}
-                            </div>
-                        </div>
-                        ${isSelf ? avatarHTML : ''}
-                    </div>`;
+                div.innerHTML = `<div class="flex items-end gap-3 mb-1">${!isSelf ? avatarHTML : ''}<div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}"><div class="flex items-center gap-2 mb-1 opacity-70">${!isSelf ? `<span class="text-xs font-bold ${data.color || 'text-zinc-400'}">${data.user_name}</span>` : ''}<span class="text-[10px] text-zinc-600 font-bold uppercase tracking-wide">${isLive ? "Just now" : "History"}</span>${isSelf ? `<span class="text-xs font-bold text-brand">You</span>` : ''}</div><div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">${replyHTML}${formatContent(data.text)}</div></div>${isSelf ? avatarHTML : ''}</div>`;
             }
             feed.appendChild(div);
             feed.scrollTop = feed.scrollHeight;
@@ -670,127 +713,105 @@
             const menu = document.getElementById('message-menu');
             const replyBtn = document.getElementById('menu-reply-btn');
             const muteBtn = document.getElementById('menu-mute-btn');
+            const kickBtn = document.getElementById('menu-kick-btn');
+            const banBtn = document.getElementById('menu-ban-btn');
 
             menu.classList.remove('hidden');
             replyBtn.onclick = () => setReply(msgData.id, msgData.user_name, msgData.text);
 
             if (isAdmin && msgData.user_name !== "Admin1") {
                 muteBtn.classList.remove('hidden');
+                kickBtn.classList.remove('hidden');
+                banBtn.classList.remove('hidden');
+                
                 const isMuted = mutedUsers.has(msgData.user_name);
                 muteBtn.innerHTML = isMuted 
-                    ? `<span class="text-green-500">Unmute ${msgData.user_name}</span>` 
-                    : `<span class="text-red-500">Mute ${msgData.user_name}</span>`;
+                    ? `<span class="text-green-500">Unmute</span>` 
+                    : `<span class="text-yellow-500">Mute</span>`;
                 
                 muteBtn.onclick = () => window.toggleMute(msgData.user_name);
+                kickBtn.onclick = () => window.kickUser(msgData.user_name);
+                banBtn.onclick = () => window.banUser(msgData.user_name);
             } else {
                 muteBtn.classList.add('hidden');
+                kickBtn.classList.add('hidden');
+                banBtn.classList.add('hidden');
             }
         }
 
         function renderAdminUserList() {
             const list = document.getElementById('online-users-list');
             list.innerHTML = '';
-            
             Object.keys(onlineUsers).forEach(userKey => {
                 const isMuted = mutedUsers.has(userKey);
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-zinc-800 text-xs";
-                div.innerHTML = `
-                    <span class="text-zinc-300 font-bold">${userKey}</span>
-                    <button onclick="window.toggleMute('${userKey}')" class="${isMuted ? 'text-green-500' : 'text-red-500'} font-bold hover:underline">
-                        ${isMuted ? 'UNMUTE' : 'MUTE'}
-                    </button>
-                `;
+                div.innerHTML = `<span class="text-zinc-300 font-bold">${userKey}</span><div class="flex gap-2"><button onclick="window.toggleMute('${userKey}')" class="${isMuted ? 'text-green-500' : 'text-yellow-500'} font-bold text-[10px]">${isMuted ? 'UNMUTE' : 'MUTE'}</button><button onclick="window.kickUser('${userKey}')" class="text-red-500 font-bold text-[10px]">KICK</button><button onclick="window.banUser('${userKey}')" class="text-red-700 font-black text-[10px]">BAN</button></div>`;
                 list.appendChild(div);
             });
         }
 
-        document.getElementById('chat-form').onsubmit = (e) => {
-            e.preventDefault();
-            const inp = document.getElementById('message-input');
-            if (inp.value.trim()) { sendMsg(inp.value.trim()); inp.value = ''; }
-        };
+        function renderBannedUserList() {
+            const list = document.getElementById('banned-users-list');
+            list.innerHTML = '';
+            if (bannedUsers.size === 0) {
+                list.innerHTML = '<div class="text-zinc-600 text-xs italic">No banned users</div>';
+                return;
+            }
+            bannedUsers.forEach(userKey => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-red-900/30 text-xs";
+                div.innerHTML = `<span class="text-red-400 font-bold">${userKey}</span><button onclick="window.unbanUser('${userKey}')" class="text-green-500 font-bold hover:underline">UNBAN</button>`;
+                list.appendChild(div);
+            });
+        }
 
+        document.getElementById('chat-form').onsubmit = (e) => { e.preventDefault(); const inp = document.getElementById('message-input'); if (inp.value.trim()) { sendMsg(inp.value.trim()); inp.value = ''; } };
         document.getElementById('media-btn').onclick = () => document.getElementById('chat-file-input').click();
-
         document.getElementById('chat-file-input').onchange = async (e) => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
-                const btn = document.getElementById('media-btn');
-                const originalContent = btn.innerHTML;
-                btn.innerHTML = `<div class="w-5 h-5 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>`;
-                btn.disabled = true;
-
                 try {
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-                    const { data, error } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
+                    const fileName = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${file.name.split('.').pop()}`;
+                    const { error } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
                     if (error) throw error;
                     const { data: { publicUrl } } = sbClient.storage.from('chat-uploads').getPublicUrl(fileName);
                     await sendMsg(publicUrl);
-                } catch (err) {
-                    alert("Upload error: " + err.message);
-                } finally {
-                    btn.innerHTML = originalContent;
-                    btn.disabled = false;
-                    e.target.value = '';
-                }
+                } catch (err) { alert("Upload error: " + err.message); }
             }
         };
 
-        // --- AUTH & ADMIN LOGIC ---
         document.getElementById('save-name').onclick = async () => {
             const name = document.getElementById('name-input').value.trim();
             const pass = document.getElementById('admin-password').value;
             const fileInput = document.getElementById('avatar-file-input');
-            const btn = document.getElementById('save-name');
             const inputField = document.getElementById('message-input');
-            
-            if (!isClean(name)) return alert("Restricted name detected.");
+            if (!isClean(name)) return alert("Restricted name.");
 
             if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
-                btn.innerText = "UPLOADING...";
-                btn.disabled = true;
                 try {
-                    const { error } = await sbClient.storage.from('avatars').upload(fileName, file);
-                    if (error) throw error;
+                    const fileName = `${Date.now()}.${fileInput.files[0].name.split('.').pop()}`;
+                    await sbClient.storage.from('avatars').upload(fileName, fileInput.files[0]);
                     const { data: { publicUrl } } = sbClient.storage.from('avatars').getPublicUrl(fileName);
                     currentAvatar = publicUrl;
                     localStorage.setItem('ekaf_avatar', currentAvatar);
-                } catch (err) {
-                    alert("Upload error: " + err.message);
-                    btn.innerText = "SAVE PROFILE";
-                    btn.disabled = false;
-                    return;
-                }
+                } catch (err) { return alert("Upload error: " + err.message); }
             }
-
-            btn.innerText = "SAVE PROFILE";
-            btn.disabled = false;
 
             if (name === "Admin1") {
                 if (pass === "THECEDENOISWATCHING") {
-                    isAdmin = true;
-                    currentUser = name;
+                    isAdmin = true; currentUser = name;
                     document.getElementById('dev-console').classList.remove('hidden');
-                    document.getElementById('theme-selector-area').classList.add('hidden'); // Hide theme selector
+                    document.getElementById('theme-selector-area').classList.add('hidden');
                     inputField.classList.add('rainbow-mode'); 
-                    startRainbowCycle(); // Start rainbow cycle
-                    finalizeLogin();
-                } else {
-                    alert("Incorrect Password.");
-                    isAdmin = false;
-                }
+                    startRainbowCycle(); finalizeLogin();
+                } else { alert("Wrong Password."); isAdmin = false; }
             } else {
-                isAdmin = false;
-                currentUser = name || generateAnonName();
+                isAdmin = false; currentUser = name || generateAnonName();
                 document.getElementById('dev-console').classList.add('hidden');
-                document.getElementById('theme-selector-area').classList.remove('hidden'); // Show theme selector
+                document.getElementById('theme-selector-area').classList.remove('hidden');
                 inputField.classList.remove('rainbow-mode');
-                stopRainbowCycle(); // Ensure rainbow is off
-                finalizeLogin();
+                stopRainbowCycle(); finalizeLogin();
             }
         };
 
@@ -798,41 +819,18 @@
             document.getElementById('display-name').textContent = currentUser;
             document.getElementById('settings-modal').classList.add('hidden');
             localStorage.setItem('ekaf_username', currentUser);
-            updateHeaderProfile();
-            trackPresence(); 
-            if(isAdmin) renderBotList();
+            updateHeaderProfile(); trackPresence(); 
+            if(isAdmin) { renderBotList(); renderBannedUserList(); }
         }
 
-        document.getElementById('clear-chat-btn').onclick = async () => {
-            if (!isAdmin || !sbClient) return;
-            if (!confirm("Are you sure you want to delete ALL messages?")) return;
-            const { error } = await sbClient.from('messages').delete().gt('id', 0);
-            if (error) alert("Failed to clear chat: " + error.message);
-        };
-
-        document.getElementById('send-broadcast').onclick = () => {
-            const inp = document.getElementById('broadcast-input');
-            const name = document.getElementById('broadcast-name').value || "ADMIN";
-            if (inp.value.trim()) { sendMsg(inp.value.trim(), name, "text-red-600", true); inp.value = ''; }
-        };
-
+        document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) await sbClient.from('messages').delete().gt('id', 0); };
+        document.getElementById('send-broadcast').onclick = () => { const inp = document.getElementById('broadcast-input'); if (inp.value.trim()) sendMsg(inp.value.trim(), "ADMIN", "text-red-600", true); };
         document.getElementById('add-bot-btn').onclick = async () => {
-            if (!isAdmin || !sbClient) return;
             const name = document.getElementById('new-bot-name').value.trim();
             const rawMsgs = document.getElementById('new-bot-messages').value.split('\n').filter(m => m.trim());
-            if (name && rawMsgs.length) {
-                await sbClient.from('bots').insert([{ name, messages: rawMsgs, color: 'text-purple-500' }]);
-                document.getElementById('new-bot-name').value = '';
-                document.getElementById('new-bot-messages').value = '';
-            }
+            if (name && rawMsgs.length) await sbClient.from('bots').insert([{ name, messages: rawMsgs, color: 'text-purple-500' }]);
         };
-
-        document.getElementById('bot-toggle').onchange = async () => {
-            if (isAdmin && sbClient) {
-                await sbClient.from('settings').update({ value: document.getElementById('bot-toggle').checked }).eq('key', 'bots_enabled');
-            }
-        };
-
+        document.getElementById('bot-toggle').onchange = async () => { if (isAdmin) await sbClient.from('settings').update({ value: document.getElementById('bot-toggle').checked }).eq('key', 'bots_enabled'); };
         document.getElementById('open-settings').onclick = () => document.getElementById('settings-modal').classList.remove('hidden');
         document.getElementById('close-modal').onclick = () => document.getElementById('settings-modal').classList.add('hidden');
         document.getElementById('name-input').oninput = (e) => document.getElementById('password-area').classList.toggle('hidden', e.target.value !== "Admin1");
@@ -841,8 +839,7 @@
             if (!botsEnabled || !cloudBots.length) return;
             if (Math.random() > 0.85) {
                 const b = cloudBots[Math.floor(Math.random() * cloudBots.length)];
-                const msg = b.messages[Math.floor(Math.random() * b.messages.length)];
-                sendMsg(msg, b.name, b.color);
+                sendMsg(b.messages[Math.floor(Math.random() * b.messages.length)], b.name, b.color);
             }
         }, 12000);
 
