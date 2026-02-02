@@ -3,94 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SLAP CHAT | Global Lobby</title>
+    <title>SLAP CHAT | Dark Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        /* DARK MODE BASE */
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #e4e4e7; overflow: hidden; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f97316; }
+
         .chat-container { height: calc(100vh - 160px); }
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #f97316; }
-        input:checked + .slider:before { transform: translateX(20px); }
 
-        /* Rainbow Animation for Admin Textbox */
-        @keyframes rainbow-pulse {
-            0% { border-color: #ff0000; box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
-            15% { border-color: #ff7f00; box-shadow: 0 0 10px rgba(255, 127, 0, 0.3); }
-            30% { border-color: #ffff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.3); }
-            45% { border-color: #00ff00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); }
-            60% { border-color: #0000ff; box-shadow: 0 0 10px rgba(0, 0, 255, 0.3); }
-            75% { border-color: #4b0082; box-shadow: 0 0 10px rgba(75, 0, 130, 0.3); }
-            90% { border-color: #9400d3; box-shadow: 0 0 10px rgba(148, 0, 211, 0.3); }
-            100% { border-color: #ff0000; box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
+        /* Admin Rainbow Animation */
+        @keyframes rainbow-border {
+            0% { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+            20% { border-color: #eab308; box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
+            40% { border-color: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+            60% { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+            80% { border-color: #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
+            100% { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
         }
         .rainbow-mode {
-            animation: rainbow-pulse 3s linear infinite;
+            animation: rainbow-border 3s linear infinite;
             border-width: 2px !important;
+            background-color: #18181b !important;
+            color: #fff !important;
         }
 
-        /* Rainbow Animation for Admin Messages */
+        /* Admin Message Bubble */
         @keyframes rainbow-bg {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
         .rainbow-bubble {
-            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-            background-size: 400% 400%;
-            animation: rainbow-bg 3s ease infinite;
+            background: linear-gradient(45deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #a855f7);
+            background-size: 300% 300%;
+            animation: rainbow-bg 4s ease infinite;
             color: white !important;
             border: none !important;
-            font-weight: bold;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        
-        /* Updated Media CSS - Forces 500px width */
+
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3f3f46; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #f97316; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Media Styles */
         .media-content { 
-            width: 175px; 
-            max-width: 100%; /* Keeps it responsive on mobile */
+            width: 100%; 
+            max-width: 500px; 
             height: auto; 
-            border-radius: 8px; 
-            margin-top: 4px; 
+            border-radius: 12px; 
+            margin-top: 8px; 
             display: block; 
             object-fit: cover;
+            border: 1px solid #3f3f46;
+            background: #000;
         }
+        .aspect-video { aspect-ratio: 16 / 9; }
     </style>
 </head>
-<body class="bg-slate-50 flex flex-col h-screen">
+<body class="bg-zinc-950 text-zinc-200 flex flex-col h-screen">
 
     <!-- Header -->
-    <header class="bg-white border-b px-6 py-4 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-lg italic tracking-tighter shadow-md">S</div>
+    <header class="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center shadow-lg z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl italic tracking-tighter shadow-orange-900/50 shadow-lg transform -skew-x-6">S</div>
             <div>
-                <h1 class="text-xl font-black text-slate-800 leading-none italic uppercase">SLAP CHAT</h1>
+                <h1 class="text-2xl font-black text-white leading-none italic uppercase tracking-tight">SLAP CHAT</h1>
                 <div class="flex items-center gap-2 mt-1">
-                    <div id="status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
-                    <span id="status-text" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Connecting...</span>
-                    <span id="online-badge" class="hidden bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded text-[10px] font-bold">0 ONLINE</span>
+                    <div id="status-dot" class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
+                    <span id="status-text" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Connected</span>
+                    <span id="online-badge" class="hidden bg-zinc-800 text-orange-500 border border-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-bold">0 ONLINE</span>
                 </div>
             </div>
         </div>
         
         <div class="flex items-center gap-4">
             <div class="text-right">
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Current User</p>
-                <div class="flex items-center justify-end gap-2">
-                    <p id="display-name" class="text-sm font-semibold text-orange-500">Guest</p>
-                    <img id="header-avatar" src="" class="w-6 h-6 rounded-full bg-slate-200 object-cover hidden">
+                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1">Signed In As</p>
+                <div class="flex items-center justify-end gap-3">
+                    <p id="display-name" class="text-sm font-bold text-orange-500">Guest</p>
+                    <img id="header-avatar" src="" class="w-10 h-10 rounded-full bg-zinc-800 object-cover hidden border-2 border-zinc-700">
                 </div>
             </div>
-            <button id="open-settings" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-slate-500">
+            <button id="open-settings" class="p-2 hover:bg-zinc-800 rounded-full transition-colors group">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-zinc-400 group-hover:text-orange-500 transition-colors">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                 </svg>
             </button>
@@ -98,25 +110,25 @@
     </header>
 
     <!-- Chat View -->
-    <main id="chat-feed" class="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50 chat-container">
+    <main id="chat-feed" class="flex-grow overflow-y-auto p-4 space-y-6 bg-zinc-950 chat-container">
         <!-- Messages load here -->
-        <div id="loading-state" class="h-full flex flex-col items-center justify-center text-slate-300">
-            <div class="w-12 h-12 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-            <p class="font-medium animate-pulse uppercase tracking-widest text-xs">Entering the SLAP lobby...</p>
+        <div id="loading-state" class="h-full flex flex-col items-center justify-center text-zinc-600">
+            <div class="w-12 h-12 border-4 border-orange-600/20 border-t-orange-600 rounded-full animate-spin mb-4"></div>
+            <p class="font-bold animate-pulse uppercase tracking-widest text-xs">Loading The Void...</p>
         </div>
     </main>
 
     <!-- Input -->
-    <footer class="bg-white border-t p-4 pb-6">
-        <form id="chat-form" class="max-w-4xl mx-auto flex gap-2">
+    <footer class="bg-zinc-900 border-t border-zinc-800 p-4 pb-6 z-20">
+        <form id="chat-form" class="max-w-5xl mx-auto flex gap-3">
             <input type="file" id="chat-file-input" class="hidden" accept="image/*,video/*">
-            <button type="button" id="media-btn" class="p-3 text-slate-400 hover:text-orange-500 transition-colors" title="Upload Image/Video">
+            <button type="button" id="media-btn" class="p-3 text-zinc-400 hover:text-orange-500 hover:bg-zinc-800 rounded-xl transition-all" title="Upload Image/Video">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                 </svg>
             </button>
-            <input type="text" id="message-input" placeholder="Type message..." class="flex-grow border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 outline-none transition-all">
-            <button type="submit" class="bg-orange-500 text-white p-3 rounded-xl hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-200">
+            <input type="text" id="message-input" placeholder="Type a message..." class="flex-grow bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-600 focus:border-transparent outline-none transition-all placeholder-zinc-500 font-medium">
+            <button type="submit" class="bg-orange-600 text-white p-3 rounded-xl hover:bg-orange-500 active:scale-95 transition-all shadow-lg shadow-orange-900/20 font-bold">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
                 </svg>
@@ -125,56 +137,55 @@
     </footer>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800 uppercase italic">Lobby Settings</h2>
-                <button id="close-modal" class="text-slate-400 hover:text-slate-600">
+                <h2 class="text-xl font-black text-white uppercase italic tracking-wide">Settings</h2>
+                <button id="close-modal" class="text-zinc-500 hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
             
-            <section class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <h3 class="text-sm font-bold uppercase text-slate-400 mb-3 tracking-wider">Your Profile</h3>
+            <section class="mb-6 p-5 bg-zinc-950/50 rounded-xl border border-zinc-800">
+                <h3 class="text-xs font-bold uppercase text-zinc-500 mb-4 tracking-wider">Profile Setup</h3>
                 
-                <div class="mb-3">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Display Name</label>
-                    <input type="text" id="name-input" maxlength="15" placeholder="Enter name..." class="w-full border p-3 rounded-lg outline-none focus:border-orange-500">
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase mb-1 block">Display Name</label>
+                    <input type="text" id="name-input" maxlength="15" placeholder="Enter name..." class="w-full bg-zinc-800 border border-zinc-700 p-3 rounded-lg outline-none focus:border-orange-500 text-white placeholder-zinc-600 font-medium">
                 </div>
 
-                <!-- Updated Upload Section -->
-                <div class="mb-3">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Profile Picture</label>
-                    <input type="file" id="avatar-file-input" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 mt-1">
-                    <p class="text-[9px] text-slate-400 mt-1 italic">Requires 'avatars' bucket in Supabase (Public)</p>
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase mb-1 block">Profile Picture</label>
+                    <input type="file" id="avatar-file-input" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-orange-600 file:text-white hover:file:bg-orange-500 cursor-pointer bg-zinc-800 rounded-lg">
+                    <p class="text-[9px] text-zinc-600 mt-2 italic">Requires public 'avatars' bucket in Supabase.</p>
                 </div>
                 
-                <div id="password-area" class="hidden mb-3">
+                <div id="password-area" class="hidden mb-4">
                     <p class="text-xs font-bold text-red-500 mb-1">ADMIN ACCESS</p>
-                    <input type="password" id="admin-password" placeholder="Password" class="w-full border p-3 rounded-lg outline-none border-red-200 focus:border-red-500">
+                    <input type="password" id="admin-password" placeholder="Password" class="w-full bg-zinc-800 border border-red-900/50 p-3 rounded-lg outline-none focus:border-red-500 text-white">
                 </div>
 
-                <button id="save-name" class="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">Update Profile</button>
+                <button id="save-name" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold uppercase tracking-wide hover:bg-orange-500 transition-colors shadow-lg shadow-orange-900/20">Save Profile</button>
             </section>
 
             <!-- Dev Section -->
-            <section id="dev-console" class="hidden p-4 border-2 border-dashed border-orange-100 rounded-xl">
-                <h3 class="text-sm font-bold uppercase text-orange-500 mb-3 tracking-wider">Admin Controls</h3>
+            <section id="dev-console" class="hidden p-4 border-2 border-dashed border-zinc-700 rounded-xl bg-black/20">
+                <h3 class="text-xs font-bold uppercase text-orange-500 mb-4 tracking-wider">Admin Controls</h3>
                 
                 <div class="space-y-4">
-                    <div class="p-3 bg-red-50 rounded-lg border border-red-100">
+                    <div class="p-3 bg-red-950/20 rounded-lg border border-red-900/30">
                         <label class="text-[10px] font-bold text-red-400 uppercase">Broadcast Identity</label>
-                        <input type="text" id="broadcast-name" class="w-full border p-2 rounded-lg text-sm mb-2 outline-none" value="ADMIN">
+                        <input type="text" id="broadcast-name" class="w-full bg-zinc-900 border border-red-900/50 p-2 rounded-lg text-sm mb-2 outline-none text-white" value="ADMIN">
                         <div class="flex gap-2">
-                            <input type="text" id="broadcast-input" placeholder="Broadcast message..." class="flex-grow border p-2 rounded-lg text-sm outline-none">
-                            <button id="send-broadcast" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs">Send</button>
+                            <input type="text" id="broadcast-input" placeholder="Broadcast message..." class="flex-grow bg-zinc-900 border border-red-900/50 p-2 rounded-lg text-sm outline-none text-white">
+                            <button id="send-broadcast" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500">SEND</button>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                        <span class="text-xs font-bold text-orange-900">Global Bots</span>
+                    <div class="flex items-center justify-between p-3 bg-zinc-900 rounded-lg border border-zinc-800">
+                        <span class="text-xs font-bold text-zinc-300">Global Bots</span>
                         <label class="switch">
                             <input type="checkbox" id="bot-toggle" checked>
                             <span class="slider"></span>
@@ -182,15 +193,14 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Cloud Bot Factory</label>
-                        <input type="text" id="new-bot-name" placeholder="Bot Name" class="w-full border p-2 rounded-lg text-sm outline-none">
-                        <textarea id="new-bot-messages" placeholder="Messages (one per line)..." class="w-full border p-2 rounded-lg text-sm h-16 outline-none"></textarea>
-                        <button id="add-bot-btn" class="w-full bg-orange-500 text-white py-2 rounded-lg text-sm">Deploy Bot</button>
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase">Cloud Bot Factory</label>
+                        <input type="text" id="new-bot-name" placeholder="Bot Name" class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm outline-none text-white">
+                        <textarea id="new-bot-messages" placeholder="Messages (one per line)..." class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm h-16 outline-none text-white"></textarea>
+                        <button id="add-bot-btn" class="w-full bg-zinc-800 text-zinc-300 py-2 rounded-lg text-xs font-bold hover:bg-zinc-700">Deploy Bot</button>
                     </div>
 
-                    <!-- Clear Chat Button -->
-                    <div class="pt-2 border-t border-orange-200">
-                        <button id="clear-chat-btn" class="w-full bg-slate-800 text-white py-3 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors">
+                    <div class="pt-2 border-t border-zinc-800">
+                        <button id="clear-chat-btn" class="w-full bg-red-500/10 text-red-500 border border-red-500/50 py-3 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
                             ⚠️ CLEAR CHAT ⚠️
                         </button>
                     </div>
@@ -219,8 +229,11 @@
         let isAdmin = false;
         let cloudBots = [];
         let botsEnabled = true;
+        
+        // --- SPAM PROTECTION STATE ---
+        let lastMessageTime = 0;
+        const SPAM_COOLDOWN_MS = 2000; // 2 seconds
 
-        // --- MODERATION LIST ---
         const BLOCKED_WORDS = ["badword", "naughty", "slur_placeholder"]; 
 
         function isClean(text) {
@@ -253,18 +266,15 @@
                 if (error) throw error;
 
                 document.getElementById('loading-state').remove();
-                statusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]";
                 statusText.textContent = "ONLINE";
-                statusText.className = "text-[10px] font-bold text-emerald-600 uppercase tracking-tighter";
+                statusText.className = "text-[10px] font-bold text-emerald-500 uppercase tracking-tighter";
                 onlineBadge.classList.remove('hidden');
                 
-                // Render history (oldest first)
                 renderFullFeed(initialMsgs.reverse());
-                
                 subscribeToChanges();
                 trackPresence();
                 
-                // Init UI Profile
                 updateHeaderProfile();
                 document.getElementById('name-input').value = currentUser.startsWith("Anon-") ? "" : currentUser;
                 
@@ -273,7 +283,7 @@
             } catch (err) {
                 console.error(err);
                 statusDot.className = "w-2 h-2 rounded-full bg-red-500 animate-none";
-                statusText.textContent = "Network Error";
+                statusText.textContent = "Net Error";
             }
         }
 
@@ -307,19 +317,16 @@
         }
 
         function subscribeToChanges() {
-            // Channel for Messages (Insert & Delete)
             sbClient.channel('public:messages')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
                     renderMessage(payload.new, true);
                 })
                 .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, payload => {
-                    // Remove message from UI immediately if it exists
                     const el = document.getElementById(`msg-${payload.old.id}`);
                     if (el) el.remove();
                 })
                 .subscribe();
 
-            // Channel for Settings
             sbClient.channel('public:settings')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'settings' }, payload => {
                     if (payload.new.key === 'bots_enabled') {
@@ -332,10 +339,21 @@
 
         async function sendMsg(text, user = currentUser, color = "text-orange-500", isBroadcast = false) {
             if (!sbClient) return;
+            
+            // --- SPAM CHECK ---
+            const now = Date.now();
+            if (!isAdmin && (now - lastMessageTime < SPAM_COOLDOWN_MS)) {
+                alert(`Whoa there! Please wait ${SPAM_COOLDOWN_MS/1000} seconds between messages.`);
+                return;
+            }
+            lastMessageTime = now;
+            
+            // --- PROFANITY CHECK ---
             if (!isClean(text)) {
                 alert("Restricted language detected.");
                 return;
             }
+            
             await sbClient.from('messages').insert([{ 
                 text, 
                 user_name: user, 
@@ -357,21 +375,39 @@
         }
 
         function formatContent(text) {
-            // Check for Images
+            // Images
             if (text.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) {
                 return `<img src="${text}" class="media-content" onerror="this.style.display='none'">`;
             }
-            // Check for Videos
+            // Videos
             if (text.match(/\.(mp4|webm|ogg)($|\?)/i)) {
                 return `<video src="${text}" controls class="media-content"></video>`;
             }
-            // Check for YouTube (simple check)
-            if (text.includes("youtube.com/watch") || text.includes("youtu.be/")) {
-                // Not implementing iframe to keep it simple and safe, just text link
-                return `<a href="${text}" target="_blank" class="underline text-blue-200 break-all">${text}</a>`;
+            // YouTube Embed (With Origin Fix)
+            // Regex captures ID. Includes origin param to help with restricted embedding
+            const ytMatch = text.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+            if (ytMatch) {
+                const ytId = ytMatch[1];
+                const origin = window.location.origin;
+                return `
+                    <div class="w-full max-w-[500px] mt-2">
+                        <iframe 
+                            src="https://www.youtube.com/embed/${ytId}?origin=${origin}&modestbranding=1" 
+                            class="w-full aspect-video rounded-lg border-0 bg-black" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                        <a href="https://youtu.be/${ytId}" target="_blank" class="block text-[10px] text-zinc-500 hover:text-orange-500 mt-1 text-right underline">Watch on YouTube (if error)</a>
+                    </div>`;
             }
+            // Medal.tv Embed (Clip)
+            const medalMatch = text.match(/medal\.tv\/(?:games\/[\w-]+\/clips|clip)\/([\w-]+)/);
+            if (medalMatch) {
+                 return `<iframe src="https://medal.tv/clip/${medalMatch[1]}/embed" class="media-content aspect-video border-0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            }
+            
             // Regular text
-            return text;
+            return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
         function renderMessage(data, isLive = true) {
@@ -379,41 +415,43 @@
             const isSelf = data.user_name === currentUser;
             const div = document.createElement('div');
             
-            // Add ID for deletion logic
             div.id = `msg-${data.id}`;
-            
             const timeLabel = isLive ? "Just now" : "History";
 
             if (data.is_broadcast) {
-                div.className = "flex flex-col items-center message-appear w-full my-4";
-                div.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-600 px-6 py-3 rounded-2xl text-center shadow-sm"><p class="text-[10px] font-black uppercase tracking-widest mb-1">Global Broadcast from ${data.user_name}</p><p class="text-sm font-bold">${data.text}</p></div>`;
+                div.className = "flex flex-col items-center message-appear w-full my-6";
+                div.innerHTML = `<div class="bg-red-950/40 border border-red-500 text-red-400 px-8 py-4 rounded-3xl text-center shadow-[0_0_20px_rgba(239,68,68,0.2)]"><p class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-red-500">Global Broadcast • ${data.user_name}</p><p class="text-base font-bold text-white">${data.text}</p></div>`;
             } else {
                 div.className = `flex flex-col ${isSelf ? 'items-end' : 'items-start'} message-appear`;
                 
-                // Determine bubble style
+                // Dark Theme Bubbles
                 let bubbleClass = isSelf 
-                    ? 'bg-orange-500 text-white rounded-l-2xl rounded-tr-2xl shadow-sm' 
-                    : 'bg-white text-slate-700 border border-slate-100 shadow-sm rounded-r-2xl rounded-tl-2xl';
+                    ? 'bg-orange-600 text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-orange-900/20' 
+                    : 'bg-zinc-800 text-zinc-200 border border-zinc-700 shadow-sm rounded-r-2xl rounded-tl-2xl';
 
-                // Admin1 Override: Rainbow Bubble
                 if (data.user_name === "Admin1") {
-                    bubbleClass = 'rainbow-bubble rounded-xl shadow-md text-white'; 
+                    bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white'; 
                 }
                 
+                // Bigger Avatar (w-14)
                 const avatarHTML = data.avatar 
-                    ? `<img src="${data.avatar}" class="w-6 h-6 rounded-full bg-slate-200 object-cover border border-slate-100 shadow-sm">` 
+                    ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md">` 
                     : '';
 
                 div.innerHTML = `
-                    <div class="flex items-center gap-2 mb-1">
+                    <div class="flex items-end gap-3 mb-1">
                         ${!isSelf ? avatarHTML : ''}
-                        ${!isSelf ? `<span class="text-xs font-bold ${data.color || 'text-slate-600'}">${data.user_name}</span>` : ''}
-                        <span class="text-[10px] text-slate-400 font-medium">${timeLabel}</span>
-                        ${isSelf ? `<span class="text-xs font-bold text-orange-500">You</span>` : ''}
+                        <div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}">
+                            <div class="flex items-center gap-2 mb-1 opacity-70">
+                                ${!isSelf ? `<span class="text-xs font-bold ${data.color || 'text-zinc-400'}">${data.user_name}</span>` : ''}
+                                <span class="text-[10px] text-zinc-600 font-bold uppercase tracking-wide">${timeLabel}</span>
+                                ${isSelf ? `<span class="text-xs font-bold text-orange-500">You</span>` : ''}
+                            </div>
+                            <div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed">
+                                ${formatContent(data.text)}
+                            </div>
+                        </div>
                         ${isSelf ? avatarHTML : ''}
-                    </div>
-                    <div class="${bubbleClass} px-4 py-2.5 max-w-[80%] text-sm break-words">
-                        ${formatContent(data.text)}
                     </div>`;
             }
             feed.appendChild(div);
@@ -437,7 +475,6 @@
                 const file = e.target.files[0];
                 const btn = document.getElementById('media-btn');
                 
-                // Visual feedback
                 const originalContent = btn.innerHTML;
                 btn.innerHTML = `<div class="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>`;
                 btn.disabled = true;
@@ -446,28 +483,25 @@
                     const fileExt = file.name.split('.').pop();
                     const fileName = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
                     
-                    // Upload to 'chat-uploads' bucket
                     const { data, error } = await sbClient.storage
                         .from('chat-uploads')
                         .upload(fileName, file);
 
                     if (error) throw error;
 
-                    // Get Public URL
                     const { data: { publicUrl } } = sbClient.storage
                         .from('chat-uploads')
                         .getPublicUrl(fileName);
 
-                    // Send the URL as a message
                     await sendMsg(publicUrl);
 
                 } catch (err) {
                     console.error(err);
-                    alert("Upload failed! Please ensure you have a public bucket named 'chat-uploads' in Supabase Storage.\n\nError: " + err.message);
+                    alert("Upload failed! Ensure 'chat-uploads' bucket exists & is Public.\n\nError: " + err.message);
                 } finally {
                     btn.innerHTML = originalContent;
                     btn.disabled = false;
-                    e.target.value = ''; // Reset input
+                    e.target.value = '';
                 }
             }
         };
@@ -485,53 +519,45 @@
                 return;
             }
 
-            // HANDLE AVATAR UPLOAD
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}.${fileExt}`;
-                const filePath = `${fileName}`;
 
-                btn.innerText = "Uploading...";
+                btn.innerText = "UPLOADING...";
                 btn.disabled = true;
 
                 try {
-                    // Upload to 'avatars' bucket
                     const { data, error } = await sbClient.storage
                         .from('avatars')
-                        .upload(filePath, file);
+                        .upload(fileName, file);
 
                     if (error) throw error;
 
-                    // Get Public URL
                     const { data: { publicUrl } } = sbClient.storage
                         .from('avatars')
-                        .getPublicUrl(filePath);
+                        .getPublicUrl(fileName);
 
                     currentAvatar = publicUrl;
                     localStorage.setItem('ekaf_avatar', currentAvatar);
-                    console.log("Avatar updated:", currentAvatar);
 
                 } catch (err) {
-                    alert("Upload failed! Make sure you created a public 'avatars' bucket in Supabase Storage.\n\nError: " + err.message);
-                    btn.innerText = "Update Profile";
+                    alert("Upload failed! Ensure 'avatars' bucket exists & is Public.\n\nError: " + err.message);
+                    btn.innerText = "SAVE PROFILE";
                     btn.disabled = false;
-                    return; // Stop login if upload failed
+                    return;
                 }
             }
 
-            // LOGIN LOGIC
-            btn.innerText = "Update Profile";
+            btn.innerText = "SAVE PROFILE";
             btn.disabled = false;
 
             if (name === "Admin1") {
                 if (pass === "THECEDENOISWATCHING") {
                     isAdmin = true;
                     currentUser = name;
-                    
                     document.getElementById('dev-console').classList.remove('hidden');
                     inputField.classList.add('rainbow-mode'); 
-                    
                     finalizeLogin();
                 } else {
                     alert("Incorrect Password.");
@@ -540,10 +566,8 @@
             } else {
                 isAdmin = false;
                 currentUser = name || generateAnonName();
-                
                 document.getElementById('dev-console').classList.add('hidden');
                 inputField.classList.remove('rainbow-mode'); 
-                
                 finalizeLogin();
             }
         };
@@ -556,19 +580,11 @@
             trackPresence();
         }
 
-        // Admin Action: Clear Chat
         document.getElementById('clear-chat-btn').onclick = async () => {
             if (!isAdmin || !sbClient) return;
             if (!confirm("Are you sure you want to delete ALL messages?")) return;
-            
-            // Delete all messages where ID is greater than 0
             const { error } = await sbClient.from('messages').delete().gt('id', 0);
-            
-            if (error) {
-                alert("Failed to clear chat: " + error.message);
-            } else {
-                console.log("Chat nuked.");
-            }
+            if (error) alert("Failed to clear chat: " + error.message);
         };
 
         document.getElementById('send-broadcast').onclick = () => {
