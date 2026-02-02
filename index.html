@@ -333,7 +333,9 @@
         let cloudBots = [];
         let botsEnabled = true;
         let mutedUsers = new Set();
-        let bannedUsers = new Set(); 
+        let bannedUsers = new Set();
+        // New: Track known admin usernames so we know when to show password field
+        let knownAdmins = new Set();
         let onlineUsers = {}; 
         let replyingTo = null; 
         let rainbowInterval = null;
@@ -405,6 +407,10 @@
             try {
                 sbClient = supabase.createClient(SB_URL, SB_KEY);
                 
+                // NEW: Fetch Admin List (names only)
+                const { data: adminList } = await sbClient.from('admins').select('username');
+                if (adminList) adminList.forEach(a => knownAdmins.add(a.username));
+
                 // Fetch Bans
                 const { data: banData } = await sbClient.from('banned_users').select('user_name');
                 if (banData) {
@@ -439,7 +445,12 @@
                 trackPresence();
                 
                 updateHeaderProfile();
+                // Pre-fill name input
                 document.getElementById('name-input').value = currentUser.startsWith("Anon-") ? "" : currentUser;
+                // If current user is an admin name, show pass field
+                if (knownAdmins.has(currentUser)) {
+                    document.getElementById('password-area').classList.remove('hidden');
+                }
                 
                 loadBots();
 
@@ -528,6 +539,10 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => {
                     loadBots();
                 })
+                // Listen for New Admins
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admins' }, payload => {
+                    knownAdmins.add(payload.new.username);
+                })
                 .subscribe((status) => {
                     console.log("Realtime Status:", status);
                 });
@@ -589,7 +604,7 @@
 
         // --- ADMIN ACTIONS (With Error Feedback) ---
         window.toggleMute = async (targetUser) => {
-            if (!isAdmin || targetUser === "Admin1") return;
+            if (!isAdmin || knownAdmins.has(targetUser)) return;
             try {
                 if (mutedUsers.has(targetUser)) {
                     await sbClient.from('muted_users').delete().eq('user_name', targetUser);
@@ -603,7 +618,7 @@
         };
 
         window.kickUser = async (targetUser) => {
-            if (!isAdmin || targetUser === "Admin1") return;
+            if (!isAdmin || knownAdmins.has(targetUser)) return;
             if (confirm(`Kick ${targetUser}?`)) {
                 const { error } = await sbClient.from('kicks').insert([{ user_name: targetUser }]);
                 if (error) {
@@ -616,7 +631,7 @@
         };
 
         window.banUser = async (targetUser) => {
-            if (!isAdmin || targetUser === "Admin1") return;
+            if (!isAdmin || knownAdmins.has(targetUser)) return;
             if (confirm(`PERMANENTLY BAN ${targetUser}?`)) {
                 const { error } = await sbClient.from('banned_users').insert([{ user_name: targetUser }]);
                 if (error) {
@@ -698,7 +713,7 @@
                     ? 'bg-brand text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-brand/20' 
                     : 'bg-zinc-800 text-zinc-200 border border-zinc-700 shadow-sm rounded-r-2xl rounded-tl-2xl';
 
-                if (data.user_name === "Admin1") bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white'; 
+                if (knownAdmins.has(data.user_name)) bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white'; 
                 bubbleClass += ' chat-bubble';
 
                 const avatarHTML = data.avatar 
@@ -726,7 +741,7 @@
             menu.classList.remove('hidden');
             replyBtn.onclick = () => setReply(msgData.id, msgData.user_name, msgData.text);
 
-            if (isAdmin && msgData.user_name !== "Admin1") {
+            if (isAdmin && !knownAdmins.has(msgData.user_name)) {
                 muteBtn.classList.remove('hidden');
                 kickBtn.classList.remove('hidden');
                 banBtn.classList.remove('hidden');
@@ -788,11 +803,23 @@
             }
         };
 
+        // --- NEW: CLOUD ADMIN CHECK ---
+        document.getElementById('name-input').oninput = (e) => {
+            // Check if typed name matches any known admin
+            if (knownAdmins.has(e.target.value.trim())) {
+                document.getElementById('password-area').classList.remove('hidden');
+            } else {
+                document.getElementById('password-area').classList.add('hidden');
+            }
+        };
+
         document.getElementById('save-name').onclick = async () => {
             const name = document.getElementById('name-input').value.trim();
             const pass = document.getElementById('admin-password').value;
             const fileInput = document.getElementById('avatar-file-input');
             const inputField = document.getElementById('message-input');
+            const btn = document.getElementById('save-name');
+            
             if (!isClean(name)) return alert("Restricted name.");
 
             if (fileInput.files.length > 0) {
@@ -805,21 +832,51 @@
                 } catch (err) { return alert("Upload error: " + err.message); }
             }
 
-            if (name === "Admin1") {
-                if (pass === "THECEDENOISWATCHING") {
-                    isAdmin = true; currentUser = name;
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+
+            // Check if user is an Admin in DB
+            const { data: adminRecord } = await sbClient
+                .from('admins')
+                .select('password')
+                .eq('username', name)
+                .single();
+
+            if (adminRecord) {
+                // Is an Admin
+                if (pass === adminRecord.password) {
+                    isAdmin = true;
+                    currentUser = name;
+                    
                     document.getElementById('dev-console').classList.remove('hidden');
                     document.getElementById('theme-selector-area').classList.add('hidden');
                     inputField.classList.add('rainbow-mode'); 
-                    startRainbowCycle(); finalizeLogin();
-                } else { alert("Wrong Password."); isAdmin = false; }
+                    startRainbowCycle(); 
+                    
+                    finalizeLogin();
+                } else {
+                    alert("Incorrect Admin Password.");
+                    isAdmin = false;
+                    btn.innerText = "Save Profile";
+                    btn.disabled = false;
+                    return; // Stop login
+                }
             } else {
-                isAdmin = false; currentUser = name || generateAnonName();
+                // Regular User
+                isAdmin = false;
+                currentUser = name || generateAnonName();
+                
                 document.getElementById('dev-console').classList.add('hidden');
                 document.getElementById('theme-selector-area').classList.remove('hidden');
                 inputField.classList.remove('rainbow-mode');
-                stopRainbowCycle(); finalizeLogin();
+                stopRainbowCycle(); 
+                
+                finalizeLogin();
             }
+            
+            // Reset button state just in case
+            btn.innerText = "Save Profile";
+            btn.disabled = false;
         };
 
         function finalizeLogin() {
@@ -840,7 +897,6 @@
         document.getElementById('bot-toggle').onchange = async () => { if (isAdmin) await sbClient.from('settings').update({ value: document.getElementById('bot-toggle').checked }).eq('key', 'bots_enabled'); };
         document.getElementById('open-settings').onclick = () => document.getElementById('settings-modal').classList.remove('hidden');
         document.getElementById('close-modal').onclick = () => document.getElementById('settings-modal').classList.add('hidden');
-        document.getElementById('name-input').oninput = (e) => document.getElementById('password-area').classList.toggle('hidden', e.target.value !== "Admin1");
 
         setInterval(() => {
             if (!botsEnabled || !cloudBots.length) return;
