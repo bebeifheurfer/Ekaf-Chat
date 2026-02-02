@@ -259,7 +259,9 @@
                 <!-- Online Users List -->
                 <div class="mb-4 p-3 bg-zinc-950 rounded-lg border border-zinc-800">
                     <p class="text-[10px] font-bold text-zinc-500 uppercase mb-2">Users Online</p>
-                    <div id="online-users-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
+                    <div id="online-users-list" class="space-y-1 max-h-32 overflow-y-auto">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
 
                 <!-- Banned Users List -->
@@ -331,7 +333,7 @@
         let cloudBots = [];
         let botsEnabled = true;
         let mutedUsers = new Set();
-        let bannedUsers = new Set(); // New Ban Set
+        let bannedUsers = new Set(); 
         let onlineUsers = {}; 
         let replyingTo = null; 
         let rainbowInterval = null;
@@ -479,9 +481,12 @@
                 });
         }
 
+        // --- CONSOLIDATED SUBSCRIPTION (FIX) ---
         function subscribeToChanges() {
-            // Messages
-            sbClient.channel('public:messages')
+            const channel = sbClient.channel('global_chat_room');
+
+            channel
+                // Listen for Messages
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
                     renderMessage(payload.new, true);
                 })
@@ -489,10 +494,7 @@
                     const el = document.getElementById(`msg-${payload.old.id}`);
                     if (el) el.remove();
                 })
-                .subscribe();
-
-            // Mutes
-            sbClient.channel('public:muted_users')
+                // Listen for Mutes
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'muted_users' }, payload => {
                     mutedUsers.add(payload.new.user_name);
                     if (isAdmin) renderAdminUserList();
@@ -501,17 +503,11 @@
                     mutedUsers.delete(payload.old.user_name);
                     if (isAdmin) renderAdminUserList();
                 })
-                .subscribe();
-
-            // Kicks
-            sbClient.channel('public:kicks')
+                // Listen for Kicks
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kicks' }, payload => {
                     if (payload.new.user_name === currentUser) applyKick();
                 })
-                .subscribe();
-
-            // BANS
-            sbClient.channel('public:banned_users')
+                // Listen for Bans
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'banned_users' }, payload => {
                     bannedUsers.add(payload.new.user_name);
                     if (payload.new.user_name === currentUser) applyBan();
@@ -521,24 +517,20 @@
                     bannedUsers.delete(payload.old.user_name);
                     if (isAdmin) renderBannedUserList();
                 })
-                .subscribe();
-
-            // Settings
-            sbClient.channel('public:settings')
+                // Listen for Settings
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'settings' }, payload => {
                     if (payload.new.key === 'bots_enabled') {
                         botsEnabled = payload.new.value;
                         document.getElementById('bot-toggle').checked = botsEnabled;
                     }
                 })
-                .subscribe();
-            
-            // Bots Listener
-            sbClient.channel('public:bots')
+                // Listen for Bots
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => {
                     loadBots();
                 })
-                .subscribe();
+                .subscribe((status) => {
+                    console.log("Realtime Status:", status);
+                });
         }
 
         function applyKick() {
@@ -595,21 +587,30 @@
         }
         document.getElementById('cancel-reply').onclick = cancelReply;
 
-        // --- ADMIN ACTIONS ---
+        // --- ADMIN ACTIONS (With Error Feedback) ---
         window.toggleMute = async (targetUser) => {
             if (!isAdmin || targetUser === "Admin1") return;
-            if (mutedUsers.has(targetUser)) {
-                await sbClient.from('muted_users').delete().eq('user_name', targetUser);
-            } else {
-                await sbClient.from('muted_users').insert([{ user_name: targetUser }]);
-            }
+            try {
+                if (mutedUsers.has(targetUser)) {
+                    await sbClient.from('muted_users').delete().eq('user_name', targetUser);
+                    alert(`Unmuted ${targetUser}`);
+                } else {
+                    await sbClient.from('muted_users').insert([{ user_name: targetUser }]);
+                    alert(`Muted ${targetUser}`);
+                }
+            } catch (err) { alert("Error muting: " + err.message); }
             document.getElementById('message-menu').classList.add('hidden');
         };
 
         window.kickUser = async (targetUser) => {
             if (!isAdmin || targetUser === "Admin1") return;
             if (confirm(`Kick ${targetUser}?`)) {
-                await sbClient.from('kicks').insert([{ user_name: targetUser }]);
+                const { error } = await sbClient.from('kicks').insert([{ user_name: targetUser }]);
+                if (error) {
+                    alert("Failed to Kick (Check Table): " + error.message);
+                } else {
+                    alert(`Kicked ${targetUser}`);
+                }
             }
             document.getElementById('message-menu').classList.add('hidden');
         };
@@ -617,7 +618,12 @@
         window.banUser = async (targetUser) => {
             if (!isAdmin || targetUser === "Admin1") return;
             if (confirm(`PERMANENTLY BAN ${targetUser}?`)) {
-                await sbClient.from('banned_users').insert([{ user_name: targetUser }]);
+                const { error } = await sbClient.from('banned_users').insert([{ user_name: targetUser }]);
+                if (error) {
+                    alert("Failed to Ban (Check Table): " + error.message);
+                } else {
+                    alert(`BANNED ${targetUser}`);
+                }
             }
             document.getElementById('message-menu').classList.add('hidden');
         };
@@ -626,6 +632,7 @@
             if (!isAdmin) return;
             if (confirm(`Unban ${targetUser}?`)) {
                 await sbClient.from('banned_users').delete().eq('user_name', targetUser);
+                alert(`Unbanned ${targetUser}`);
             }
         };
 
