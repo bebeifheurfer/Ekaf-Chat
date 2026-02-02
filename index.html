@@ -3,12 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SLAP CHAT | Dark Mode</title>
+    <title>SLAP CHAT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- TAILWIND CONFIG FOR CUSTOM THEMES -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: 'var(--brand-main)',
+                            hover: 'var(--brand-hover)',
+                            dim: 'var(--brand-dim)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
+        :root {
+            /* Default Orange Theme */
+            --brand-main: #f97316;
+            --brand-hover: #ea580c;
+            --brand-dim: rgba(249, 115, 22, 0.2);
+        }
+
         /* DARK MODE BASE */
         body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #e4e4e7; overflow: hidden; }
         
@@ -16,23 +41,24 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #18181b; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #f97316; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--brand-main); }
 
         .chat-container { height: calc(100vh - 160px); }
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Admin Rainbow Animation */
+        /* Admin Rainbow Animation (Input Box) - MATCHED COLORS */
         @keyframes rainbow-border {
-            0% { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
-            20% { border-color: #eab308; box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
-            40% { border-color: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
-            60% { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
-            80% { border-color: #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
-            100% { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+            0% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+            16% { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
+            33% { border-color: #eab308; box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); }
+            50% { border-color: #22c55e; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+            66% { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+            83% { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+            100% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
         }
         .rainbow-mode {
-            animation: rainbow-border 3s linear infinite;
+            animation: rainbow-border 4s linear infinite; /* Matches bubble timing */
             border-width: 2px !important;
             background-color: #18181b !important;
             color: #fff !important;
@@ -59,7 +85,7 @@
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3f3f46; transition: .4s; border-radius: 24px; }
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #f97316; }
+        input:checked + .slider { background-color: var(--brand-main); }
         input:checked + .slider:before { transform: translateX(20px); }
 
         /* Media Styles */
@@ -75,6 +101,15 @@
             background: #000;
         }
         .aspect-video { aspect-ratio: 16 / 9; }
+        
+        /* Message Bubble Hover Effect (New Fix) */
+        .chat-bubble { transition: filter 0.2s; cursor: pointer; }
+        .chat-bubble:hover { filter: brightness(1.1); }
+
+        /* Color Buttons */
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s; }
+        .color-btn:hover { transform: scale(1.1); }
+        .color-btn.active { border-color: white; box-shadow: 0 0 0 2px var(--brand-main); }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200 flex flex-col h-screen">
@@ -82,13 +117,13 @@
     <!-- Header -->
     <header class="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center shadow-lg z-20">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl italic tracking-tighter shadow-orange-900/50 shadow-lg transform -skew-x-6">S</div>
+            <div class="w-10 h-10 bg-brand rounded-xl flex items-center justify-center text-white font-black text-xl italic tracking-tighter shadow-brand/50 shadow-lg transform -skew-x-6 transition-colors duration-300">S</div>
             <div>
                 <h1 class="text-2xl font-black text-white leading-none italic uppercase tracking-tight">SLAP CHAT</h1>
                 <div class="flex items-center gap-2 mt-1">
-                    <div id="status-dot" class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
+                    <div id="status-dot" class="w-2 h-2 rounded-full bg-brand animate-pulse"></div>
                     <span id="status-text" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Connected</span>
-                    <span id="online-badge" class="hidden bg-zinc-800 text-orange-500 border border-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-bold">0 ONLINE</span>
+                    <span id="online-badge" class="hidden bg-zinc-800 text-brand border border-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-bold">0 ONLINE</span>
                 </div>
             </div>
         </div>
@@ -97,12 +132,12 @@
             <div class="text-right">
                 <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1">Signed In As</p>
                 <div class="flex items-center justify-end gap-3">
-                    <p id="display-name" class="text-sm font-bold text-orange-500">Guest</p>
+                    <p id="display-name" class="text-sm font-bold text-brand">Guest</p>
                     <img id="header-avatar" src="" class="w-10 h-10 rounded-full bg-zinc-800 object-cover hidden border-2 border-zinc-700">
                 </div>
             </div>
             <button id="open-settings" class="p-2 hover:bg-zinc-800 rounded-full transition-colors group">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-zinc-400 group-hover:text-orange-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-zinc-400 group-hover:text-brand transition-colors">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                 </svg>
             </button>
@@ -111,30 +146,58 @@
 
     <!-- Chat View -->
     <main id="chat-feed" class="flex-grow overflow-y-auto p-4 space-y-6 bg-zinc-950 chat-container">
-        <!-- Messages load here -->
         <div id="loading-state" class="h-full flex flex-col items-center justify-center text-zinc-600">
-            <div class="w-12 h-12 border-4 border-orange-600/20 border-t-orange-600 rounded-full animate-spin mb-4"></div>
+            <div class="w-12 h-12 border-4 border-brand/20 border-t-brand rounded-full animate-spin mb-4"></div>
             <p class="font-bold animate-pulse uppercase tracking-widest text-xs">Loading The Void...</p>
         </div>
     </main>
 
     <!-- Input -->
-    <footer class="bg-zinc-900 border-t border-zinc-800 p-4 pb-6 z-20">
+    <footer class="bg-zinc-900 border-t border-zinc-800 p-4 pb-6 z-20 relative">
+        
+        <!-- Reply Bar (Hidden by default) -->
+        <div id="reply-bar" class="hidden absolute -top-12 left-4 right-4 bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-t-xl flex justify-between items-center text-xs shadow-lg">
+            <div class="flex items-center gap-2 overflow-hidden">
+                <span class="text-brand font-bold">Replying to <span id="reply-to-user">User</span>:</span>
+                <span id="reply-to-text" class="truncate max-w-[200px] opacity-70 italic">message content...</span>
+            </div>
+            <button id="cancel-reply" class="text-zinc-500 hover:text-white font-bold text-lg leading-none">&times;</button>
+        </div>
+
         <form id="chat-form" class="max-w-5xl mx-auto flex gap-3">
             <input type="file" id="chat-file-input" class="hidden" accept="image/*,video/*">
-            <button type="button" id="media-btn" class="p-3 text-zinc-400 hover:text-orange-500 hover:bg-zinc-800 rounded-xl transition-all" title="Upload Image/Video">
+            <button type="button" id="media-btn" class="p-3 text-zinc-400 hover:text-brand hover:bg-zinc-800 rounded-xl transition-all" title="Upload Image/Video">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                 </svg>
             </button>
-            <input type="text" id="message-input" placeholder="Type a message..." class="flex-grow bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-600 focus:border-transparent outline-none transition-all placeholder-zinc-500 font-medium">
-            <button type="submit" class="bg-orange-600 text-white p-3 rounded-xl hover:bg-orange-500 active:scale-95 transition-all shadow-lg shadow-orange-900/20 font-bold">
+            <input type="text" id="message-input" placeholder="Type a message..." class="flex-grow bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all placeholder-zinc-500 font-medium">
+            <button type="submit" class="bg-brand text-white p-3 rounded-xl hover:bg-brand-hover active:scale-95 transition-all shadow-lg shadow-brand/20 font-bold">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
                 </svg>
             </button>
         </form>
     </footer>
+
+    <!-- Message Action Modal -->
+    <div id="message-menu" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm" onclick="this.classList.add('hidden')">
+        <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 w-64 shadow-2xl space-y-2 transform scale-100 transition-all" onclick="event.stopPropagation()">
+            <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Message Options</h3>
+            <button id="menu-reply-btn" class="w-full text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Reply
+            </button>
+            <button id="menu-mute-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                Mute User (Admin)
+            </button>
+        </div>
+    </div>
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
@@ -149,31 +212,47 @@
             </div>
             
             <section class="mb-6 p-5 bg-zinc-950/50 rounded-xl border border-zinc-800">
-                <h3 class="text-xs font-bold uppercase text-zinc-500 mb-4 tracking-wider">Profile Setup</h3>
-                
-                <div class="mb-4">
-                    <label class="text-[10px] font-bold text-zinc-400 uppercase mb-1 block">Display Name</label>
-                    <input type="text" id="name-input" maxlength="15" placeholder="Enter name..." class="w-full bg-zinc-800 border border-zinc-700 p-3 rounded-lg outline-none focus:border-orange-500 text-white placeholder-zinc-600 font-medium">
+                <!-- Theme Selector -->
+                <div id="theme-selector-area" class="mb-6 pb-6 border-b border-zinc-800">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase mb-2 block">Theme Color</label>
+                    <div class="flex gap-3 justify-center">
+                        <div class="color-btn bg-red-500" onclick="setTheme('red')"></div>
+                        <div class="color-btn bg-orange-500" onclick="setTheme('orange')"></div>
+                        <div class="color-btn bg-yellow-500" onclick="setTheme('yellow')"></div>
+                        <div class="color-btn bg-green-500" onclick="setTheme('green')"></div>
+                        <div class="color-btn bg-blue-500" onclick="setTheme('blue')"></div>
+                        <div class="color-btn bg-purple-500" onclick="setTheme('purple')"></div>
+                    </div>
                 </div>
 
+                <h3 class="text-xs font-bold uppercase text-zinc-500 mb-4 tracking-wider">Profile Setup</h3>
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase mb-1 block">Display Name</label>
+                    <input type="text" id="name-input" maxlength="15" placeholder="Enter name..." class="w-full bg-zinc-800 border border-zinc-700 p-3 rounded-lg outline-none focus:border-brand text-white placeholder-zinc-600 font-medium">
+                </div>
                 <div class="mb-4">
                     <label class="text-[10px] font-bold text-zinc-400 uppercase mb-1 block">Profile Picture</label>
-                    <input type="file" id="avatar-file-input" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-orange-600 file:text-white hover:file:bg-orange-500 cursor-pointer bg-zinc-800 rounded-lg">
-                    <p class="text-[9px] text-zinc-600 mt-2 italic">Requires public 'avatars' bucket in Supabase.</p>
+                    <input type="file" id="avatar-file-input" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-brand file:text-white hover:file:bg-brand-hover cursor-pointer bg-zinc-800 rounded-lg">
                 </div>
-                
                 <div id="password-area" class="hidden mb-4">
                     <p class="text-xs font-bold text-red-500 mb-1">ADMIN ACCESS</p>
                     <input type="password" id="admin-password" placeholder="Password" class="w-full bg-zinc-800 border border-red-900/50 p-3 rounded-lg outline-none focus:border-red-500 text-white">
                 </div>
-
-                <button id="save-name" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold uppercase tracking-wide hover:bg-orange-500 transition-colors shadow-lg shadow-orange-900/20">Save Profile</button>
+                <button id="save-name" class="w-full bg-brand text-white py-3 rounded-lg font-bold uppercase tracking-wide hover:bg-brand-hover transition-colors shadow-lg shadow-brand/20">Save Profile</button>
             </section>
 
             <!-- Dev Section -->
             <section id="dev-console" class="hidden p-4 border-2 border-dashed border-zinc-700 rounded-xl bg-black/20">
-                <h3 class="text-xs font-bold uppercase text-orange-500 mb-4 tracking-wider">Admin Controls</h3>
+                <h3 class="text-xs font-bold uppercase text-brand mb-4 tracking-wider">Admin Controls</h3>
                 
+                <!-- Online Users List -->
+                <div class="mb-4 p-3 bg-zinc-950 rounded-lg border border-zinc-800">
+                    <p class="text-[10px] font-bold text-zinc-500 uppercase mb-2">Users Online</p>
+                    <div id="online-users-list" class="space-y-1 max-h-32 overflow-y-auto">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
                 <div class="space-y-4">
                     <div class="p-3 bg-red-950/20 rounded-lg border border-red-900/30">
                         <label class="text-[10px] font-bold text-red-400 uppercase">Broadcast Identity</label>
@@ -183,7 +262,7 @@
                             <button id="send-broadcast" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500">SEND</button>
                         </div>
                     </div>
-
+                    
                     <div class="flex items-center justify-between p-3 bg-zinc-900 rounded-lg border border-zinc-800">
                         <span class="text-xs font-bold text-zinc-300">Global Bots</span>
                         <label class="switch">
@@ -191,12 +270,19 @@
                             <span class="slider"></span>
                         </label>
                     </div>
-
+                    
+                    <!-- Bot Factory -->
                     <div class="space-y-2">
                         <label class="text-[10px] font-bold text-zinc-500 uppercase">Cloud Bot Factory</label>
                         <input type="text" id="new-bot-name" placeholder="Bot Name" class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm outline-none text-white">
                         <textarea id="new-bot-messages" placeholder="Messages (one per line)..." class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm h-16 outline-none text-white"></textarea>
                         <button id="add-bot-btn" class="w-full bg-zinc-800 text-zinc-300 py-2 rounded-lg text-xs font-bold hover:bg-zinc-700">Deploy Bot</button>
+                    </div>
+
+                    <!-- Active Bots List (Restored) -->
+                    <div class="mt-4 border-t border-zinc-800 pt-4">
+                        <p class="text-[10px] font-bold text-zinc-500 uppercase mb-2">Active Cloud Bots</p>
+                        <div id="active-bots-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
                     </div>
 
                     <div class="pt-2 border-t border-zinc-800">
@@ -217,24 +303,33 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lbXdmY2t1YW91YXlpb3R5a2RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3ODM4MjMsImV4cCI6MjA4NTM1OTgyM30.gQf9P1mP7U1NK0pzBZ--W7x9CiL6yVz0_emvWWSpLBI"; 
         // ---------------------------------------------------------
 
-        // Helper to generate Anon-XXX
-        function generateAnonName() {
-            return "Anon-" + Math.floor(100 + Math.random() * 900);
-        }
+        function generateAnonName() { return "Anon-" + Math.floor(100 + Math.random() * 900); }
 
         // --- GLOBAL STATE ---
         let sbClient;
         let currentUser = localStorage.getItem('ekaf_username') || generateAnonName();
         let currentAvatar = localStorage.getItem('ekaf_avatar') || "";
+        let currentTheme = localStorage.getItem('ekaf_theme') || "orange";
         let isAdmin = false;
         let cloudBots = [];
         let botsEnabled = true;
-        
-        // --- SPAM PROTECTION STATE ---
-        let lastMessageTime = 0;
-        const SPAM_COOLDOWN_MS = 2000; // 2 seconds
+        let mutedUsers = new Set();
+        let onlineUsers = {}; 
+        let replyingTo = null; 
+        let rainbowInterval = null;
 
+        let lastMessageTime = 0;
+        const SPAM_COOLDOWN_MS = 2000;
         const BLOCKED_WORDS = ["badword", "naughty", "slur_placeholder"]; 
+
+        const themes = {
+            red: { main: '#ef4444', hover: '#dc2626' },
+            orange: { main: '#f97316', hover: '#ea580c' },
+            yellow: { main: '#eab308', hover: '#ca8a04' },
+            green: { main: '#22c55e', hover: '#16a34a' },
+            blue: { main: '#3b82f6', hover: '#2563eb' },
+            purple: { main: '#a855f7', hover: '#9333ea' }
+        };
 
         function isClean(text) {
             const lower = text.toLowerCase();
@@ -245,8 +340,43 @@
         const statusText = document.getElementById('status-text');
         const onlineBadge = document.getElementById('online-badge');
 
+        // --- THEME LOGIC ---
+        window.setTheme = (colorName) => {
+            const t = themes[colorName];
+            if (!t) return;
+            
+            document.documentElement.style.setProperty('--brand-main', t.main);
+            document.documentElement.style.setProperty('--brand-hover', t.hover);
+            document.documentElement.style.setProperty('--brand-dim', t.main + '33'); // 20% opacity
+            
+            localStorage.setItem('ekaf_theme', colorName);
+            currentTheme = colorName;
+        };
+
+        function startRainbowCycle() {
+            let hue = 0;
+            if (rainbowInterval) clearInterval(rainbowInterval);
+            rainbowInterval = setInterval(() => {
+                hue = (hue + 2) % 360;
+                document.documentElement.style.setProperty('--brand-main', `hsl(${hue}, 90%, 60%)`);
+                document.documentElement.style.setProperty('--brand-hover', `hsl(${hue}, 90%, 50%)`);
+                document.documentElement.style.setProperty('--brand-dim', `hsla(${hue}, 90%, 60%, 0.2)`);
+            }, 50);
+        }
+
+        function stopRainbowCycle() {
+            if (rainbowInterval) {
+                clearInterval(rainbowInterval);
+                rainbowInterval = null;
+                setTheme(currentTheme); // Restore user theme
+            }
+        }
+
         // --- BOOTSTRAP ---
         async function init() {
+            // Initialize Theme
+            setTheme(currentTheme);
+
             if (SB_URL.includes("PASTE_YOUR_URL_HERE") || !SB_URL) {
                 statusDot.className = "w-2 h-2 rounded-full bg-red-500";
                 statusText.textContent = "Keys Missing";
@@ -256,7 +386,11 @@
             try {
                 sbClient = supabase.createClient(SB_URL, SB_KEY);
                 
-                // --- FETCH HISTORY ---
+                // Fetch Muted Users
+                const { data: muteData } = await sbClient.from('muted_users').select('user_name');
+                if (muteData) muteData.forEach(r => mutedUsers.add(r.user_name));
+
+                // Fetch History
                 const { data: initialMsgs, error } = await sbClient
                     .from('messages')
                     .select('*')
@@ -306,8 +440,10 @@
             channel
                 .on('presence', { event: 'sync' }, () => {
                     const state = channel.presenceState();
+                    onlineUsers = state; // Update local state
                     const count = Object.keys(state).length;
                     onlineBadge.textContent = `${count} ONLINE`;
+                    if (isAdmin) renderAdminUserList();
                 })
                 .subscribe(async (status) => {
                     if (status === 'SUBSCRIBED') {
@@ -317,6 +453,7 @@
         }
 
         function subscribeToChanges() {
+            // Messages
             sbClient.channel('public:messages')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
                     renderMessage(payload.new, true);
@@ -327,6 +464,19 @@
                 })
                 .subscribe();
 
+            // Mutes
+            sbClient.channel('public:muted_users')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'muted_users' }, payload => {
+                    mutedUsers.add(payload.new.user_name);
+                    if (isAdmin) renderAdminUserList();
+                })
+                .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'muted_users' }, payload => {
+                    mutedUsers.delete(payload.old.user_name);
+                    if (isAdmin) renderAdminUserList();
+                })
+                .subscribe();
+
+            // Settings
             sbClient.channel('public:settings')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'settings' }, payload => {
                     if (payload.new.key === 'bots_enabled') {
@@ -335,12 +485,25 @@
                     }
                 })
                 .subscribe();
+            
+            // Bots Listener
+            sbClient.channel('public:bots')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => {
+                    loadBots();
+                })
+                .subscribe();
         }
 
-        async function sendMsg(text, user = currentUser, color = "text-orange-500", isBroadcast = false) {
+        async function sendMsg(text, user = currentUser, color = "text-brand", isBroadcast = false) {
             if (!sbClient) return;
             
-            // --- SPAM CHECK ---
+            // Check Mute
+            if (mutedUsers.has(user)) {
+                alert("You have been muted by an admin.");
+                return;
+            }
+
+            // Spam Check
             const now = Date.now();
             if (!isAdmin && (now - lastMessageTime < SPAM_COOLDOWN_MS)) {
                 alert(`Whoa there! Please wait ${SPAM_COOLDOWN_MS/1000} seconds between messages.`);
@@ -348,7 +511,6 @@
             }
             lastMessageTime = now;
             
-            // --- PROFANITY CHECK ---
             if (!isClean(text)) {
                 alert("Restricted language detected.");
                 return;
@@ -359,14 +521,68 @@
                 user_name: user, 
                 color, 
                 is_broadcast: isBroadcast,
-                avatar: currentAvatar
+                avatar: currentAvatar,
+                reply_to: replyingTo 
             }]);
+
+            cancelReply();
         }
 
+        // --- REPLY LOGIC ---
+        function setReply(id, user, text) {
+            replyingTo = { id, user, text };
+            document.getElementById('reply-bar').classList.remove('hidden');
+            document.getElementById('reply-to-user').textContent = user;
+            document.getElementById('reply-to-text').textContent = text;
+            document.getElementById('message-input').focus();
+            document.getElementById('message-menu').classList.add('hidden'); 
+        }
+
+        function cancelReply() {
+            replyingTo = null;
+            document.getElementById('reply-bar').classList.add('hidden');
+        }
+        document.getElementById('cancel-reply').onclick = cancelReply;
+
+        // --- MUTE LOGIC ---
+        window.toggleMute = async (targetUser) => {
+            if (!isAdmin) return;
+            if (targetUser === "Admin1") return alert("Cannot mute admin.");
+
+            if (mutedUsers.has(targetUser)) {
+                await sbClient.from('muted_users').delete().eq('user_name', targetUser);
+            } else {
+                await sbClient.from('muted_users').insert([{ user_name: targetUser }]);
+            }
+            document.getElementById('message-menu').classList.add('hidden');
+        };
+
+        // --- RENDER FUNCTIONS ---
         async function loadBots() {
             const { data } = await sbClient.from('bots').select('*');
-            if (data) cloudBots = data;
+            if (data) {
+                cloudBots = data;
+                if (isAdmin) renderBotList();
+            }
         }
+
+        function renderBotList() {
+             const list = document.getElementById('active-bots-list');
+             if (!list) return;
+             list.innerHTML = '';
+             cloudBots.forEach(bot => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-zinc-800 text-xs";
+                item.innerHTML = `<span class="text-purple-400 font-bold">${bot.name}</span><button onclick="window.delBot('${bot.id}')" class="text-red-500 font-bold hover:text-red-400">X</button>`;
+                list.appendChild(item);
+             });
+        }
+
+        window.delBot = async (id) => {
+            if(isAdmin && sbClient) {
+                await sbClient.from('bots').delete().eq('id', id);
+            }
+        };
 
         function renderFullFeed(msgs) {
             const feed = document.getElementById('chat-feed');
@@ -375,38 +591,12 @@
         }
 
         function formatContent(text) {
-            // Images
-            if (text.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) {
-                return `<img src="${text}" class="media-content" onerror="this.style.display='none'">`;
-            }
-            // Videos
-            if (text.match(/\.(mp4|webm|ogg)($|\?)/i)) {
-                return `<video src="${text}" controls class="media-content"></video>`;
-            }
-            // YouTube Embed (With Origin Fix)
-            // Regex captures ID. Includes origin param to help with restricted embedding
+            if (text.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) return `<img src="${text}" class="media-content" onerror="this.style.display='none'">`;
+            if (text.match(/\.(mp4|webm|ogg)($|\?)/i)) return `<video src="${text}" controls class="media-content"></video>`;
             const ytMatch = text.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-            if (ytMatch) {
-                const ytId = ytMatch[1];
-                const origin = window.location.origin;
-                return `
-                    <div class="w-full max-w-[500px] mt-2">
-                        <iframe 
-                            src="https://www.youtube.com/embed/${ytId}?origin=${origin}&modestbranding=1" 
-                            class="w-full aspect-video rounded-lg border-0 bg-black" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            allowfullscreen>
-                        </iframe>
-                        <a href="https://youtu.be/${ytId}" target="_blank" class="block text-[10px] text-zinc-500 hover:text-orange-500 mt-1 text-right underline">Watch on YouTube (if error)</a>
-                    </div>`;
-            }
-            // Medal.tv Embed (Clip)
+            if (ytMatch) return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?modestbranding=1" class="media-content aspect-video border-0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             const medalMatch = text.match(/medal\.tv\/(?:games\/[\w-]+\/clips|clip)\/([\w-]+)/);
-            if (medalMatch) {
-                 return `<iframe src="https://medal.tv/clip/${medalMatch[1]}/embed" class="media-content aspect-video border-0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            }
-            
-            // Regular text
+            if (medalMatch) return `<iframe src="https://medal.tv/clip/${medalMatch[1]}/embed" class="media-content aspect-video border-0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
@@ -418,25 +608,42 @@
             div.id = `msg-${data.id}`;
             const timeLabel = isLive ? "Just now" : "History";
 
+            div.onclick = (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+                // Only open if clicking on the actual bubble content
+                if (e.target.closest('.chat-bubble')) {
+                    openMessageMenu(e, data);
+                }
+            };
+            div.className = `message-wrapper relative group`;
+
             if (data.is_broadcast) {
-                div.className = "flex flex-col items-center message-appear w-full my-6";
-                div.innerHTML = `<div class="bg-red-950/40 border border-red-500 text-red-400 px-8 py-4 rounded-3xl text-center shadow-[0_0_20px_rgba(239,68,68,0.2)]"><p class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-red-500">Global Broadcast • ${data.user_name}</p><p class="text-base font-bold text-white">${data.text}</p></div>`;
+                div.innerHTML = `<div class="flex flex-col items-center message-appear w-full my-6"><div class="bg-red-950/40 border border-red-500 text-red-400 px-8 py-4 rounded-3xl text-center shadow-[0_0_20px_rgba(239,68,68,0.2)]"><p class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-red-500">Global Broadcast • ${data.user_name}</p><p class="text-base font-bold text-white">${data.text}</p></div></div>`;
             } else {
-                div.className = `flex flex-col ${isSelf ? 'items-end' : 'items-start'} message-appear`;
+                div.classList.add('flex', 'flex-col', isSelf ? 'items-end' : 'items-start', 'message-appear');
                 
-                // Dark Theme Bubbles
                 let bubbleClass = isSelf 
-                    ? 'bg-orange-600 text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-orange-900/20' 
+                    ? 'bg-brand text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-brand/20' 
                     : 'bg-zinc-800 text-zinc-200 border border-zinc-700 shadow-sm rounded-r-2xl rounded-tl-2xl';
 
-                if (data.user_name === "Admin1") {
-                    bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white'; 
-                }
+                if (data.user_name === "Admin1") bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white'; 
                 
-                // Bigger Avatar (w-14)
+                // Add the target class for clicking
+                bubbleClass += ' chat-bubble';
+
                 const avatarHTML = data.avatar 
                     ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md">` 
                     : '';
+
+                let replyHTML = '';
+                if (data.reply_to) {
+                    replyHTML = `
+                        <div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col">
+                            <span class="font-bold text-brand">${data.reply_to.user}</span>
+                            <span class="truncate max-w-[150px] italic">${data.reply_to.text}</span>
+                        </div>
+                    `;
+                }
 
                 div.innerHTML = `
                     <div class="flex items-end gap-3 mb-1">
@@ -445,9 +652,10 @@
                             <div class="flex items-center gap-2 mb-1 opacity-70">
                                 ${!isSelf ? `<span class="text-xs font-bold ${data.color || 'text-zinc-400'}">${data.user_name}</span>` : ''}
                                 <span class="text-[10px] text-zinc-600 font-bold uppercase tracking-wide">${timeLabel}</span>
-                                ${isSelf ? `<span class="text-xs font-bold text-orange-500">You</span>` : ''}
+                                ${isSelf ? `<span class="text-xs font-bold text-brand">You</span>` : ''}
                             </div>
-                            <div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed">
+                            <div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">
+                                ${replyHTML}
                                 ${formatContent(data.text)}
                             </div>
                         </div>
@@ -458,46 +666,70 @@
             feed.scrollTop = feed.scrollHeight;
         }
 
+        function openMessageMenu(e, msgData) {
+            const menu = document.getElementById('message-menu');
+            const replyBtn = document.getElementById('menu-reply-btn');
+            const muteBtn = document.getElementById('menu-mute-btn');
+
+            menu.classList.remove('hidden');
+            replyBtn.onclick = () => setReply(msgData.id, msgData.user_name, msgData.text);
+
+            if (isAdmin && msgData.user_name !== "Admin1") {
+                muteBtn.classList.remove('hidden');
+                const isMuted = mutedUsers.has(msgData.user_name);
+                muteBtn.innerHTML = isMuted 
+                    ? `<span class="text-green-500">Unmute ${msgData.user_name}</span>` 
+                    : `<span class="text-red-500">Mute ${msgData.user_name}</span>`;
+                
+                muteBtn.onclick = () => window.toggleMute(msgData.user_name);
+            } else {
+                muteBtn.classList.add('hidden');
+            }
+        }
+
+        function renderAdminUserList() {
+            const list = document.getElementById('online-users-list');
+            list.innerHTML = '';
+            
+            Object.keys(onlineUsers).forEach(userKey => {
+                const isMuted = mutedUsers.has(userKey);
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-zinc-800 text-xs";
+                div.innerHTML = `
+                    <span class="text-zinc-300 font-bold">${userKey}</span>
+                    <button onclick="window.toggleMute('${userKey}')" class="${isMuted ? 'text-green-500' : 'text-red-500'} font-bold hover:underline">
+                        ${isMuted ? 'UNMUTE' : 'MUTE'}
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
         document.getElementById('chat-form').onsubmit = (e) => {
             e.preventDefault();
             const inp = document.getElementById('message-input');
             if (inp.value.trim()) { sendMsg(inp.value.trim()); inp.value = ''; }
         };
 
-        // Media Button Helper
-        document.getElementById('media-btn').onclick = () => {
-            document.getElementById('chat-file-input').click();
-        };
+        document.getElementById('media-btn').onclick = () => document.getElementById('chat-file-input').click();
 
-        // Handle File Selection for Chat
         document.getElementById('chat-file-input').onchange = async (e) => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
                 const btn = document.getElementById('media-btn');
-                
                 const originalContent = btn.innerHTML;
-                btn.innerHTML = `<div class="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>`;
+                btn.innerHTML = `<div class="w-5 h-5 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>`;
                 btn.disabled = true;
 
                 try {
                     const fileExt = file.name.split('.').pop();
                     const fileName = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-                    
-                    const { data, error } = await sbClient.storage
-                        .from('chat-uploads')
-                        .upload(fileName, file);
-
+                    const { data, error } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
                     if (error) throw error;
-
-                    const { data: { publicUrl } } = sbClient.storage
-                        .from('chat-uploads')
-                        .getPublicUrl(fileName);
-
+                    const { data: { publicUrl } } = sbClient.storage.from('chat-uploads').getPublicUrl(fileName);
                     await sendMsg(publicUrl);
-
                 } catch (err) {
-                    console.error(err);
-                    alert("Upload failed! Ensure 'chat-uploads' bucket exists & is Public.\n\nError: " + err.message);
+                    alert("Upload error: " + err.message);
                 } finally {
                     btn.innerHTML = originalContent;
                     btn.disabled = false;
@@ -514,35 +746,21 @@
             const btn = document.getElementById('save-name');
             const inputField = document.getElementById('message-input');
             
-            if (!isClean(name)) {
-                alert("Restricted name detected.");
-                return;
-            }
+            if (!isClean(name)) return alert("Restricted name detected.");
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}.${fileExt}`;
-
+                const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
                 btn.innerText = "UPLOADING...";
                 btn.disabled = true;
-
                 try {
-                    const { data, error } = await sbClient.storage
-                        .from('avatars')
-                        .upload(fileName, file);
-
+                    const { error } = await sbClient.storage.from('avatars').upload(fileName, file);
                     if (error) throw error;
-
-                    const { data: { publicUrl } } = sbClient.storage
-                        .from('avatars')
-                        .getPublicUrl(fileName);
-
+                    const { data: { publicUrl } } = sbClient.storage.from('avatars').getPublicUrl(fileName);
                     currentAvatar = publicUrl;
                     localStorage.setItem('ekaf_avatar', currentAvatar);
-
                 } catch (err) {
-                    alert("Upload failed! Ensure 'avatars' bucket exists & is Public.\n\nError: " + err.message);
+                    alert("Upload error: " + err.message);
                     btn.innerText = "SAVE PROFILE";
                     btn.disabled = false;
                     return;
@@ -557,7 +775,9 @@
                     isAdmin = true;
                     currentUser = name;
                     document.getElementById('dev-console').classList.remove('hidden');
+                    document.getElementById('theme-selector-area').classList.add('hidden'); // Hide theme selector
                     inputField.classList.add('rainbow-mode'); 
+                    startRainbowCycle(); // Start rainbow cycle
                     finalizeLogin();
                 } else {
                     alert("Incorrect Password.");
@@ -567,7 +787,9 @@
                 isAdmin = false;
                 currentUser = name || generateAnonName();
                 document.getElementById('dev-console').classList.add('hidden');
-                inputField.classList.remove('rainbow-mode'); 
+                document.getElementById('theme-selector-area').classList.remove('hidden'); // Show theme selector
+                inputField.classList.remove('rainbow-mode');
+                stopRainbowCycle(); // Ensure rainbow is off
                 finalizeLogin();
             }
         };
@@ -577,7 +799,8 @@
             document.getElementById('settings-modal').classList.add('hidden');
             localStorage.setItem('ekaf_username', currentUser);
             updateHeaderProfile();
-            trackPresence();
+            trackPresence(); 
+            if(isAdmin) renderBotList();
         }
 
         document.getElementById('clear-chat-btn').onclick = async () => {
@@ -601,7 +824,6 @@
                 await sbClient.from('bots').insert([{ name, messages: rawMsgs, color: 'text-purple-500' }]);
                 document.getElementById('new-bot-name').value = '';
                 document.getElementById('new-bot-messages').value = '';
-                loadBots();
             }
         };
 
