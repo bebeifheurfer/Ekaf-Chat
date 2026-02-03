@@ -473,22 +473,22 @@
                 const { data: banData } = await sbClient.from('banned_users').select('user_name');
                 if (banData) {
                     const newBans = new Set();
-                    banData.forEach(r => newBans.add(r.user_name));
-                    bannedUsers = newBans; // Update global set
+                    banData.forEach(r => newBans.add(r.user_name.toLowerCase())); 
+                    bannedUsers = newBans; 
                     
-                    if (bannedUsers.has(currentUser)) {
+                    if (bannedUsers.has(currentUser.toLowerCase())) {
                         applyBan();
                     }
                 }
             } catch (e) { console.warn("Sync Bans Fail", e); }
 
-            // Check Kicks (Last 1 minute)
+            // Check Kicks
             try {
-                const oneMinAgo = new Date(Date.now() - 60000).toISOString();
-                const { data: kickData } = await sbClient.from('kicks').select('user_name').gt('created_at', oneMinAgo);
+                const checkTime = new Date(Date.now() - 300000).toISOString(); 
+                const { data: kickData } = await sbClient.from('kicks').select('user_name').gt('created_at', checkTime);
                 if (kickData) {
                     kickData.forEach(r => {
-                        if (r.user_name === currentUser) applyKick();
+                        if (r.user_name.toLowerCase() === currentUser.toLowerCase()) applyKick();
                     });
                 }
             } catch (e) { console.warn("Sync Kicks Fail", e); }
@@ -498,19 +498,16 @@
                 const { data: muteData } = await sbClient.from('muted_users').select('user_name');
                 if (muteData) {
                     const newMutes = new Set();
-                    muteData.forEach(r => newMutes.add(r.user_name));
-                    mutedUsers = newMutes; // Update global set
+                    muteData.forEach(r => newMutes.add(r.user_name.toLowerCase()));
+                    mutedUsers = newMutes; 
                 }
             } catch (e) { console.warn("Sync Mutes Fail", e); }
         }
 
-        // --- POLLING FALLBACK & SECURITY CHECK ---
+        // --- POLLING FALLBACK ---
         function startPolling() {
             setInterval(async () => {
-                // 1. Sync Security (Critical for Bans/Kicks to work without realtime)
                 await syncSecurity();
-
-                // 2. Sync Messages
                 const { data } = await sbClient.from('messages').select('*').order('created_at', { ascending: false }).limit(10);
                 if(data) {
                     data.reverse().forEach(msg => {
@@ -519,7 +516,7 @@
                         }
                     });
                 }
-            }, 3000); // Check every 3 seconds
+            }, 3000); 
         }
 
         function updateHeaderProfile() {
@@ -557,55 +554,50 @@
             const channel = sbClient.channel('global_chat_room');
 
             channel
-                // Listen for Messages
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                    // Remove "No messages" placeholder
                     const placeholder = document.querySelector('#chat-feed .text-zinc-600');
                     if (placeholder) placeholder.parentElement.remove();
-                    
-                    if (!renderedMessageIds.has(payload.new.id)) {
-                        renderMessage(payload.new, true);
-                    }
+                    if (!renderedMessageIds.has(payload.new.id)) renderMessage(payload.new, true);
                 })
                 .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, payload => {
                     const el = document.getElementById(`msg-${payload.old.id}`);
                     if (el) el.remove();
                 })
-                // Listen for Mutes
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'muted_users' }, payload => {
                     mutedUsers.add(payload.new.user_name);
+                    if (payload.new.user_name === currentUser) {
+                        alert("You have been muted.");
+                        location.reload(); 
+                    }
                     if (isAdmin) renderAdminUserList();
                 })
                 .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'muted_users' }, payload => {
                     mutedUsers.delete(payload.old.user_name);
                     if (isAdmin) renderAdminUserList();
                 })
-                // Listen for Kicks
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kicks' }, payload => {
-                    if (payload.new.user_name === currentUser) applyKick();
+                    if (payload.new.user_name === currentUser) {
+                        location.reload(); 
+                    }
                 })
-                // Listen for Bans
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'banned_users' }, payload => {
                     bannedUsers.add(payload.new.user_name);
-                    if (payload.new.user_name === currentUser) applyBan();
+                    if (payload.new.user_name === currentUser) {
+                        location.reload(); 
+                    }
                     if (isAdmin) renderBannedUserList();
                 })
                 .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'banned_users' }, payload => {
                     bannedUsers.delete(payload.old.user_name);
                     if (isAdmin) renderBannedUserList();
                 })
-                // Listen for Settings
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'settings' }, payload => {
                     if (payload.new.key === 'bots_enabled') {
                         botsEnabled = payload.new.value;
                         document.getElementById('bot-toggle').checked = botsEnabled;
                     }
                 })
-                // Listen for Bots
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => {
-                    loadBots();
-                })
-                // Listen for New Admins
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => loadBots())
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admins' }, payload => {
                     knownAdmins.add(payload.new.username);
                 })
@@ -637,7 +629,7 @@
 
         async function sendMsg(text, user = currentUser, color = "text-brand", isBroadcast = false) {
             if (!sbClient) return;
-            if (mutedUsers.has(user)) return alert("You are muted.");
+            if (mutedUsers.has(user.toLowerCase())) return alert("You are muted.");
             
             const now = Date.now();
             if (!isAdmin && (now - lastMessageTime < SPAM_COOLDOWN_MS)) {
@@ -647,21 +639,18 @@
             
             if (!isClean(text)) return alert("Restricted language.");
             
-            // Try Insert and Alert on Error
             const { data, error } = await sbClient.from('messages').insert([{ 
                 text, user_name: user, color, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
             }]).select().single();
 
             if (error) {
-                alert("Message Failed: " + error.message + "\n\n(Did you run the SQL Repair Script?)");
+                alert("Message Failed: " + error.message);
                 return;
             }
 
             if (data) {
-                // Remove placeholder if exists
                 const placeholder = document.querySelector('#chat-feed .text-zinc-600');
                 if (placeholder) placeholder.parentElement.remove();
-                
                 renderMessage(data, true);
             }
             
@@ -683,11 +672,11 @@
         }
         document.getElementById('cancel-reply').onclick = cancelReply;
 
-        // --- ADMIN ACTIONS (With Error Feedback) ---
+        // --- ADMIN ACTIONS ---
         window.toggleMute = async (targetUser) => {
             if (!isAdmin || knownAdmins.has(targetUser)) return;
             try {
-                if (mutedUsers.has(targetUser)) {
+                if (mutedUsers.has(targetUser.toLowerCase())) {
                     await sbClient.from('muted_users').delete().eq('user_name', targetUser);
                     alert(`Unmuted ${targetUser}`);
                 } else {
@@ -703,7 +692,7 @@
             if (confirm(`Kick ${targetUser}?`)) {
                 const { error } = await sbClient.from('kicks').insert([{ user_name: targetUser }]);
                 if (error) {
-                    alert("Failed to Kick (Check Table): " + error.message);
+                    alert("Failed to Kick: " + error.message);
                 } else {
                     alert(`Kicked ${targetUser}`);
                 }
@@ -716,7 +705,7 @@
             if (confirm(`PERMANENTLY BAN ${targetUser}?`)) {
                 const { error } = await sbClient.from('banned_users').insert([{ user_name: targetUser }]);
                 if (error) {
-                    alert("Failed to Ban (Check Table): " + error.message);
+                    alert("Failed to Ban: " + error.message);
                 } else {
                     alert(`BANNED ${targetUser}`);
                 }
@@ -775,7 +764,7 @@
 
         function renderMessage(data, isLive = true) {
             if (!data || !data.id) return;
-            if (renderedMessageIds.has(data.id)) return; // Prevent Duplicates
+            if (renderedMessageIds.has(data.id)) return; 
             renderedMessageIds.add(data.id);
 
             const feed = document.getElementById('chat-feed');
@@ -831,7 +820,7 @@
                 kickBtn.classList.remove('hidden');
                 banBtn.classList.remove('hidden');
                 
-                const isMuted = mutedUsers.has(msgData.user_name);
+                const isMuted = mutedUsers.has(msgData.user_name.toLowerCase());
                 muteBtn.innerHTML = isMuted 
                     ? `<span class="text-green-500">Unmute</span>` 
                     : `<span class="text-yellow-500">Mute</span>`;
@@ -848,9 +837,10 @@
 
         function renderAdminUserList() {
             const list = document.getElementById('online-users-list');
+            if(!list) return; // FIX: Ensure element exists
             list.innerHTML = '';
             Object.keys(onlineUsers).forEach(userKey => {
-                const isMuted = mutedUsers.has(userKey);
+                const isMuted = mutedUsers.has(userKey.toLowerCase());
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-zinc-800 text-xs";
                 div.innerHTML = `<span class="text-zinc-300 font-bold">${userKey}</span><div class="flex gap-2"><button onclick="window.toggleMute('${userKey}')" class="${isMuted ? 'text-green-500' : 'text-yellow-500'} font-bold text-[10px]">${isMuted ? 'UNMUTE' : 'MUTE'}</button><button onclick="window.kickUser('${userKey}')" class="text-red-500 font-bold text-[10px]">KICK</button><button onclick="window.banUser('${userKey}')" class="text-red-700 font-black text-[10px]">BAN</button></div>`;
@@ -860,6 +850,7 @@
 
         function renderBannedUserList() {
             const list = document.getElementById('banned-users-list');
+            if(!list) return; // FIX: Ensure element exists
             list.innerHTML = '';
             if (bannedUsers.size === 0) {
                 list.innerHTML = '<div class="text-zinc-600 text-xs italic">No banned users</div>';
@@ -888,9 +879,7 @@
             }
         };
 
-        // --- NEW: CLOUD ADMIN CHECK ---
         document.getElementById('name-input').oninput = (e) => {
-            // Check if typed name matches any known admin
             if (knownAdmins.has(e.target.value.trim())) {
                 document.getElementById('password-area').classList.remove('hidden');
             } else {
@@ -920,7 +909,6 @@
             btn.innerText = "Verifying...";
             btn.disabled = true;
 
-            // Check if user is an Admin in DB
             const { data: adminRecord } = await sbClient
                 .from('admins')
                 .select('password')
@@ -928,7 +916,6 @@
                 .single();
 
             if (adminRecord) {
-                // Is an Admin
                 if (pass === adminRecord.password) {
                     isAdmin = true;
                     currentUser = name;
@@ -944,10 +931,9 @@
                     isAdmin = false;
                     btn.innerText = "Save Profile";
                     btn.disabled = false;
-                    return; // Stop login
+                    return; 
                 }
             } else {
-                // Regular User
                 isAdmin = false;
                 currentUser = name || generateAnonName();
                 
@@ -959,7 +945,6 @@
                 finalizeLogin();
             }
             
-            // Reset button state just in case
             btn.innerText = "Save Profile";
             btn.disabled = false;
         };
