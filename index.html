@@ -101,7 +101,6 @@
         }
         .aspect-video { aspect-ratio: 16 / 9; }
         
-        /* Message Bubble Hover Effect */
         .chat-bubble { transition: filter 0.2s; cursor: pointer; }
         .chat-bubble:hover { filter: brightness(1.1); }
 
@@ -334,15 +333,15 @@
         let botsEnabled = true;
         let mutedUsers = new Set();
         let bannedUsers = new Set();
-        // New: Track known admin usernames so we know when to show password field
         let knownAdmins = new Set();
         let onlineUsers = {}; 
         let replyingTo = null; 
         let rainbowInterval = null;
+        let renderedMessageIds = new Set(); 
 
         let lastMessageTime = 0;
         const SPAM_COOLDOWN_MS = 2000;
-        const BLOCKED_WORDS = ["nigga", "nigger", "faggot"]; 
+        const BLOCKED_WORDS = ["badword", "naughty", "slur_placeholder"]; 
 
         const themes = {
             red: { main: '#ef4444', hover: '#dc2626' },
@@ -394,7 +393,7 @@
             }
         }
 
-        // --- BOOTSTRAP ---
+        // --- BOOTSTRAP (ROBUST INIT) ---
         async function init() {
             setTheme(currentTheme);
 
@@ -407,58 +406,93 @@
             try {
                 sbClient = supabase.createClient(SB_URL, SB_KEY);
                 
-                // NEW: Fetch Admin List (names only)
-                const { data: adminList } = await sbClient.from('admins').select('username');
-                if (adminList) adminList.forEach(a => knownAdmins.add(a.username));
+                // 1. Try to fetch Admins (Soft Fail)
+                try {
+                    const { data: adminList } = await sbClient.from('admins').select('username');
+                    if (adminList) adminList.forEach(a => knownAdmins.add(a.username));
+                } catch (e) { console.warn("Admins table missing or error", e); }
 
-                // Fetch Bans
-                const { data: banData } = await sbClient.from('banned_users').select('user_name');
-                if (banData) {
-                    banData.forEach(r => bannedUsers.add(r.user_name));
-                    if (bannedUsers.has(currentUser)) {
-                        applyBan();
-                        return; // Stop loading if banned
+                // 2. Try to fetch Bans (Soft Fail)
+                try {
+                    const { data: banData } = await sbClient.from('banned_users').select('user_name');
+                    if (banData) {
+                        banData.forEach(r => bannedUsers.add(r.user_name));
+                        if (bannedUsers.has(currentUser)) {
+                            applyBan();
+                            return; 
+                        }
                     }
-                }
+                } catch (e) { console.warn("Bans table missing or error", e); }
 
-                // Fetch Muted Users
-                const { data: muteData } = await sbClient.from('muted_users').select('user_name');
-                if (muteData) muteData.forEach(r => mutedUsers.add(r.user_name));
+                // 3. Try to fetch Mutes (Soft Fail)
+                try {
+                    const { data: muteData } = await sbClient.from('muted_users').select('user_name');
+                    if (muteData) muteData.forEach(r => mutedUsers.add(r.user_name));
+                } catch (e) { console.warn("Mutes table missing or error", e); }
 
-                // Fetch History
+                // 4. Fetch Messages (Critical)
                 const { data: initialMsgs, error } = await sbClient
                     .from('messages')
                     .select('*')
                     .order('created_at', { ascending: false })
                     .limit(50);
 
-                if (error) throw error;
+                if (error) throw error; // Crash if messages fail
 
-                document.getElementById('loading-state').remove();
+                // UI Cleanup
+                const loader = document.getElementById('loading-state');
+                if (loader) loader.remove();
+                
                 statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]";
                 statusText.textContent = "ONLINE";
                 statusText.className = "text-[10px] font-bold text-emerald-500 uppercase tracking-tighter";
                 onlineBadge.classList.remove('hidden');
                 
-                renderFullFeed(initialMsgs.reverse());
-                subscribeToChanges();
-                trackPresence();
-                
-                updateHeaderProfile();
-                // Pre-fill name input
-                document.getElementById('name-input').value = currentUser.startsWith("Anon-") ? "" : currentUser;
-                // If current user is an admin name, show pass field
-                if (knownAdmins.has(currentUser)) {
-                    document.getElementById('password-area').classList.remove('hidden');
+                // Important fix: ensure messages are displayed even if 0
+                if (initialMsgs && initialMsgs.length > 0) {
+                    renderFullFeed(initialMsgs.reverse());
+                } else {
+                    document.getElementById('chat-feed').innerHTML = '<div class="h-full flex flex-col items-center justify-center text-zinc-600"><p class="font-bold text-xs uppercase tracking-widest">No messages yet. Say hi!</p></div>';
                 }
                 
-                loadBots();
+                subscribeToChanges();
+                trackPresence();
+                updateHeaderProfile();
+                
+                // Start Polling Loop (Backup for Realtime)
+                startPolling();
+
+                // Pre-fill name input & password logic
+                document.getElementById('name-input').value = currentUser.startsWith("Anon-") ? "" : currentUser;
+                if (knownAdmins.has(currentUser)) document.getElementById('password-area').classList.remove('hidden');
+                
+                // 5. Try Bots (Soft Fail)
+                try {
+                    loadBots(); 
+                } catch (e) { console.warn("Bots table error", e); }
 
             } catch (err) {
-                console.error(err);
+                console.error("CRITICAL INIT ERROR:", err);
                 statusDot.className = "w-2 h-2 rounded-full bg-red-500 animate-none";
-                statusText.textContent = "Net Error";
+                statusText.textContent = "Msg Error";
+                // Show error on screen so user knows why
+                const feed = document.getElementById('chat-feed');
+                if (feed) feed.innerHTML = `<div class="text-red-500 text-center mt-10 p-4 bg-red-900/20 rounded-xl border border-red-900/50"><p class="font-bold">Failed to load messages</p><p class="text-xs text-red-300 mt-1">${err.message}</p><p class="text-[10px] text-zinc-500 mt-2">Check the SQL Repair Script</p></div>`;
             }
+        }
+
+        // --- POLLING FALLBACK ---
+        function startPolling() {
+            setInterval(async () => {
+                const { data } = await sbClient.from('messages').select('*').order('created_at', { ascending: false }).limit(10);
+                if(data) {
+                    data.reverse().forEach(msg => {
+                        if (!renderedMessageIds.has(msg.id)) {
+                            renderMessage(msg, true);
+                        }
+                    });
+                }
+            }, 3000); 
         }
 
         function updateHeaderProfile() {
@@ -492,14 +526,19 @@
                 });
         }
 
-        // --- CONSOLIDATED SUBSCRIPTION (FIX) ---
         function subscribeToChanges() {
             const channel = sbClient.channel('global_chat_room');
 
             channel
                 // Listen for Messages
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                    renderMessage(payload.new, true);
+                    // Remove "No messages" placeholder
+                    const placeholder = document.querySelector('#chat-feed .text-zinc-600');
+                    if (placeholder) placeholder.remove();
+                    
+                    if (!renderedMessageIds.has(payload.new.id)) {
+                        renderMessage(payload.new, true);
+                    }
                 })
                 .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, payload => {
                     const el = document.getElementById(`msg-${payload.old.id}`);
@@ -581,9 +620,24 @@
             
             if (!isClean(text)) return alert("Restricted language.");
             
-            await sbClient.from('messages').insert([{ 
+            // Try Insert and Alert on Error
+            const { data, error } = await sbClient.from('messages').insert([{ 
                 text, user_name: user, color, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
-            }]);
+            }]).select().single();
+
+            if (error) {
+                alert("Message Failed: " + error.message + "\n\n(Did you run the SQL Repair Script?)");
+                return;
+            }
+
+            if (data) {
+                // Remove placeholder if exists
+                const placeholder = document.querySelector('#chat-feed .text-zinc-600');
+                if (placeholder) placeholder.remove();
+                
+                renderMessage(data, true);
+            }
+            
             cancelReply();
         }
 
@@ -693,6 +747,10 @@
         }
 
         function renderMessage(data, isLive = true) {
+            if (!data || !data.id) return;
+            if (renderedMessageIds.has(data.id)) return; // Prevent Duplicates
+            renderedMessageIds.add(data.id);
+
             const feed = document.getElementById('chat-feed');
             const isSelf = data.user_name === currentUser;
             const div = document.createElement('div');
