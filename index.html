@@ -46,7 +46,7 @@
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Admin Rainbow Animation (Input Box) */
+        /* Admin Rainbow Animation */
         @keyframes rainbow-border {
             0% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
             16% { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
@@ -534,7 +534,7 @@
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
                     // Remove "No messages" placeholder
                     const placeholder = document.querySelector('#chat-feed .text-zinc-600');
-                    if (placeholder) placeholder.remove();
+                    if (placeholder) placeholder.parentElement.remove();
                     
                     if (!renderedMessageIds.has(payload.new.id)) {
                         renderMessage(payload.new, true);
@@ -633,7 +633,7 @@
             if (data) {
                 // Remove placeholder if exists
                 const placeholder = document.querySelector('#chat-feed .text-zinc-600');
-                if (placeholder) placeholder.remove();
+                if (placeholder) placeholder.parentElement.remove();
                 
                 renderMessage(data, true);
             }
@@ -945,7 +945,7 @@
             if(isAdmin) { renderBotList(); renderBannedUserList(); }
         }
 
-        document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) await sbClient.from('messages').delete().gt('id', 0); };
+        document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) { await sbClient.from('messages').delete().gt('id', 0); location.reload(); } };
         document.getElementById('send-broadcast').onclick = () => { const inp = document.getElementById('broadcast-input'); if (inp.value.trim()) sendMsg(inp.value.trim(), "ADMIN", "text-red-600", true); };
         document.getElementById('add-bot-btn').onclick = async () => {
             const name = document.getElementById('new-bot-name').value.trim();
