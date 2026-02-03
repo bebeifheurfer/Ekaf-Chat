@@ -412,32 +412,17 @@
                     if (adminList) adminList.forEach(a => knownAdmins.add(a.username));
                 } catch (e) { console.warn("Admins table missing or error", e); }
 
-                // 2. Try to fetch Bans (Soft Fail)
-                try {
-                    const { data: banData } = await sbClient.from('banned_users').select('user_name');
-                    if (banData) {
-                        banData.forEach(r => bannedUsers.add(r.user_name));
-                        if (bannedUsers.has(currentUser)) {
-                            applyBan();
-                            return; 
-                        }
-                    }
-                } catch (e) { console.warn("Bans table missing or error", e); }
+                // 2. Fetch Initial Bans/Mutes
+                await syncSecurity();
 
-                // 3. Try to fetch Mutes (Soft Fail)
-                try {
-                    const { data: muteData } = await sbClient.from('muted_users').select('user_name');
-                    if (muteData) muteData.forEach(r => mutedUsers.add(r.user_name));
-                } catch (e) { console.warn("Mutes table missing or error", e); }
-
-                // 4. Fetch Messages (Critical)
+                // 3. Fetch Messages (Critical)
                 const { data: initialMsgs, error } = await sbClient
                     .from('messages')
                     .select('*')
                     .order('created_at', { ascending: false })
                     .limit(50);
 
-                if (error) throw error; // Crash if messages fail
+                if (error) throw error; 
 
                 // UI Cleanup
                 const loader = document.getElementById('loading-state');
@@ -481,9 +466,51 @@
             }
         }
 
-        // --- POLLING FALLBACK ---
+        // --- SECURITY SYNC (MANUAL POLL) ---
+        async function syncSecurity() {
+            // Check Bans
+            try {
+                const { data: banData } = await sbClient.from('banned_users').select('user_name');
+                if (banData) {
+                    const newBans = new Set();
+                    banData.forEach(r => newBans.add(r.user_name));
+                    bannedUsers = newBans; // Update global set
+                    
+                    if (bannedUsers.has(currentUser)) {
+                        applyBan();
+                    }
+                }
+            } catch (e) { console.warn("Sync Bans Fail", e); }
+
+            // Check Kicks (Last 1 minute)
+            try {
+                const oneMinAgo = new Date(Date.now() - 60000).toISOString();
+                const { data: kickData } = await sbClient.from('kicks').select('user_name').gt('created_at', oneMinAgo);
+                if (kickData) {
+                    kickData.forEach(r => {
+                        if (r.user_name === currentUser) applyKick();
+                    });
+                }
+            } catch (e) { console.warn("Sync Kicks Fail", e); }
+
+            // Check Mutes
+            try {
+                const { data: muteData } = await sbClient.from('muted_users').select('user_name');
+                if (muteData) {
+                    const newMutes = new Set();
+                    muteData.forEach(r => newMutes.add(r.user_name));
+                    mutedUsers = newMutes; // Update global set
+                }
+            } catch (e) { console.warn("Sync Mutes Fail", e); }
+        }
+
+        // --- POLLING FALLBACK & SECURITY CHECK ---
         function startPolling() {
             setInterval(async () => {
+                // 1. Sync Security (Critical for Bans/Kicks to work without realtime)
+                await syncSecurity();
+
+                // 2. Sync Messages
                 const { data } = await sbClient.from('messages').select('*').order('created_at', { ascending: false }).limit(10);
                 if(data) {
                     data.reverse().forEach(msg => {
@@ -492,7 +519,7 @@
                         }
                     });
                 }
-            }, 3000); 
+            }, 3000); // Check every 3 seconds
         }
 
         function updateHeaderProfile() {
