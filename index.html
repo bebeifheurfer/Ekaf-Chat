@@ -46,7 +46,7 @@
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Admin Rainbow Animation (Input Box) */
+        /* Admin Rainbow Animation */
         @keyframes rainbow-border {
             0% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
             16% { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
@@ -63,7 +63,7 @@
             color: #fff !important;
         }
 
-        /* Admin Message Bubble (Synced with Border) */
+        /* Admin Message Bubble */
         @keyframes rainbow-bg {
             0% { background-color: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
             16% { background-color: #f97316; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
@@ -138,7 +138,7 @@
                 <div class="flex items-center gap-2 mt-1">
                     <div id="status-dot" class="w-2 h-2 rounded-full bg-brand animate-pulse"></div>
                     <span id="status-text" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Connected</span>
-                    <span id="online-badge" class="hidden bg-zinc-800 text-brand border border-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-bold">0 ONLINE</span>
+                    <button id="online-badge" class="hidden bg-zinc-800 text-brand border border-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-bold hover:bg-zinc-700 transition-colors cursor-pointer">0 ONLINE</button>
                 </div>
             </div>
         </div>
@@ -223,6 +223,23 @@
                 </svg>
                 BAN USER
             </button>
+        </div>
+    </div>
+
+    <!-- Active Users Modal -->
+    <div id="users-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden" onclick="this.classList.add('hidden')">
+        <div class="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl overflow-hidden flex flex-col max-h-[80vh] transform scale-100" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b border-zinc-800 pb-4">
+                <h2 class="text-lg font-black text-white uppercase tracking-widest text-brand">Active Users</h2>
+                <button onclick="document.getElementById('users-modal').classList.add('hidden')" class="text-zinc-500 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="public-users-list" class="space-y-2 overflow-y-auto pr-2 custom-scrollbar">
+                <!-- User Items Injected Here -->
+            </div>
         </div>
     </div>
 
@@ -372,18 +389,19 @@
         let replyingTo = null; 
         let rainbowInterval = null;
         let renderedMessageIds = new Set(); 
+        let presenceChannel = null;
 
         let lastMessageTime = 0;
         const SPAM_COOLDOWN_MS = 2000;
-        const BLOCKED_WORDS = ["faggot", "nigga", "nigger", "nig"]; 
+        const BLOCKED_WORDS = ["badword", "naughty", "slur_placeholder"]; 
 
         const themes = {
-            red: { main: '#ef4444', hover: '#dc2626' },
-            orange: { main: '#f97316', hover: '#ea580c' },
-            yellow: { main: '#eab308', hover: '#ca8a04' },
-            green: { main: '#22c55e', hover: '#16a34a' },
-            blue: { main: '#3b82f6', hover: '#2563eb' },
-            purple: { main: '#a855f7', hover: '#9333ea' }
+            red: { main: '#ef4444', hover: '#dc2626', textClass: 'text-red-500' },
+            orange: { main: '#f97316', hover: '#ea580c', textClass: 'text-orange-500' },
+            yellow: { main: '#eab308', hover: '#ca8a04', textClass: 'text-yellow-500' },
+            green: { main: '#22c55e', hover: '#16a34a', textClass: 'text-green-500' },
+            blue: { main: '#3b82f6', hover: '#2563eb', textClass: 'text-blue-500' },
+            purple: { main: '#a855f7', hover: '#9333ea', textClass: 'text-purple-500' }
         };
 
         function isClean(text) {
@@ -567,22 +585,33 @@
             }
         }
 
-        function trackPresence() {
-            const channel = sbClient.channel('slap_presence', {
+        async function trackPresence() {
+            // Unsubscribe existing to avoid duplicates if name changed
+            if (presenceChannel) {
+                await sbClient.removeChannel(presenceChannel);
+            }
+
+            presenceChannel = sbClient.channel('slap_presence', {
                 config: { presence: { key: currentUser } }
             });
 
-            channel
+            presenceChannel
                 .on('presence', { event: 'sync' }, () => {
-                    const state = channel.presenceState();
+                    const state = presenceChannel.presenceState();
                     onlineUsers = state; 
                     const count = Object.keys(state).length;
-                    onlineBadge.textContent = `${count} ONLINE`;
+                    document.getElementById('online-badge').textContent = `${count} ONLINE`;
                     if (isAdmin) renderAdminUserList();
+                    renderPublicUserList(); 
                 })
                 .subscribe(async (status) => {
                     if (status === 'SUBSCRIBED') {
-                        await channel.track({ online_at: new Date().toISOString() });
+                        // Track presence with Avatar & Theme Color
+                        await presenceChannel.track({ 
+                            online_at: new Date().toISOString(),
+                            avatar: currentAvatar,
+                            color: themes[currentTheme].textClass // Track theme color class
+                        });
                     }
                 });
         }
@@ -656,6 +685,10 @@
         function playAudio(url) {
             const player = document.getElementById('global-audio-player');
             const toast = document.getElementById('audio-toast');
+            
+            // Reset player
+            player.pause();
+            player.currentTime = 0;
             player.src = url;
             
             // Try to play immediately
@@ -762,9 +795,12 @@
             
             if (!isClean(text)) return alert("Restricted language.");
             
+            // Use Theme Color for non-admin messages
+            const finalColor = isBroadcast ? color : themes[currentTheme].textClass;
+
             // Try Insert and Alert on Error
             const { data, error } = await sbClient.from('messages').insert([{ 
-                text, user_name: user, color, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
+                text, user_name: user, color: finalColor, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
             }]).select().single();
 
             if (error) {
@@ -963,6 +999,7 @@
 
         function renderAdminUserList() {
             const list = document.getElementById('online-users-list');
+            if(!list) return; // FIX: Ensure element exists
             list.innerHTML = '';
             Object.keys(onlineUsers).forEach(userKey => {
                 const isMuted = mutedUsers.has(userKey.toLowerCase());
@@ -972,9 +1009,50 @@
                 list.appendChild(div);
             });
         }
+        
+        // --- PUBLIC USER LIST RENDERER ---
+        function renderPublicUserList() {
+            const list = document.getElementById('public-users-list');
+            if(!list) return;
+            list.innerHTML = '';
+            
+            // Convert onlineUsers object to array and sort alphabetically
+            const users = Object.keys(onlineUsers).sort();
+            
+            if (users.length === 0) {
+                 list.innerHTML = `<p class="text-zinc-500 text-xs text-center py-4">It's quiet in here...</p>`;
+                 return;
+            }
+
+            users.forEach(userKey => {
+                // Get avatar and color from presence state
+                const sessions = onlineUsers[userKey];
+                const avatarUrl = (sessions && sessions[0] && sessions[0].avatar) ? sessions[0].avatar : null;
+                const userColor = (sessions && sessions[0] && sessions[0].color) ? sessions[0].color : 'text-zinc-300';
+                
+                // Fallback Avatar
+                const fallbackAvatar = `https://ui-avatars.com/api/?name=${userKey}&background=27272a&color=f97316&size=128&bold=true`;
+                const finalAvatar = avatarUrl || fallbackAvatar;
+
+                const item = document.createElement('div');
+                item.className = "flex items-center gap-3 p-3 bg-zinc-950/50 rounded-xl border border-zinc-800/50 hover:bg-zinc-900 transition-colors";
+                item.innerHTML = `
+                    <div class="relative">
+                        <img src="${finalAvatar}" class="w-10 h-10 rounded-lg object-cover bg-zinc-800 border border-zinc-700" onerror="this.src='${fallbackAvatar}'">
+                        <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-zinc-950 shadow-md shadow-emerald-500/20"></div>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm ${userColor} leading-tight">${userKey}</p>
+                        <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider leading-tight">Active</p>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
 
         function renderBannedUserList() {
             const list = document.getElementById('banned-users-list');
+            if(!list) return; // FIX: Ensure element exists
             list.innerHTML = '';
             if (bannedUsers.size === 0) {
                 list.innerHTML = '<div class="text-zinc-600 text-xs italic">No banned users</div>';
@@ -1086,8 +1164,14 @@
             updateHeaderProfile(); trackPresence(); 
             if(isAdmin) { renderBotList(); renderBannedUserList(); }
         }
+        
+        // Open Active Users Modal
+        document.getElementById('online-badge').onclick = () => {
+             document.getElementById('users-modal').classList.remove('hidden');
+             renderPublicUserList(); // Ensure fresh render
+        };
 
-        document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) await sbClient.from('messages').delete().gt('id', 0); };
+        document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) { await sbClient.from('messages').delete().gt('id', 0); location.reload(); } };
         document.getElementById('send-broadcast').onclick = () => { const inp = document.getElementById('broadcast-input'); if (inp.value.trim()) sendMsg(inp.value.trim(), "ADMIN", "text-red-600", true); };
         document.getElementById('add-bot-btn').onclick = async () => {
             const name = document.getElementById('new-bot-name').value.trim();
@@ -1104,7 +1188,7 @@
                 const b = cloudBots[Math.floor(Math.random() * cloudBots.length)];
                 sendMsg(b.messages[Math.floor(Math.random() * b.messages.length)], b.name, b.color);
             }
-        }, 12000);
+        }, 10000);
 
         init();
     </script>
