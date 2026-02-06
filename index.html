@@ -46,7 +46,7 @@
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Admin Rainbow Animation */
+        /* Admin Rainbow Animation (Input Box) */
         @keyframes rainbow-border {
             0% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
             16% { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
@@ -63,20 +63,21 @@
             color: #fff !important;
         }
 
-        /* Admin Message Bubble */
+        /* Admin Message Bubble (Synced with Border) */
         @keyframes rainbow-bg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% { background-color: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+            16% { background-color: #f97316; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
+            33% { background-color: #eab308; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3); }
+            50% { background-color: #22c55e; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
+            66% { background-color: #3b82f6; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+            83% { background-color: #a855f7; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3); }
+            100% { background-color: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
         }
         .rainbow-bubble {
-            background: linear-gradient(45deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #a855f7);
-            background-size: 300% 300%;
-            animation: rainbow-bg 4s ease infinite;
+            animation: rainbow-bg 4s linear infinite;
             color: white !important;
             border: none !important;
             font-weight: 700;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         /* Toggle Switch */
@@ -962,7 +963,6 @@
 
         function renderAdminUserList() {
             const list = document.getElementById('online-users-list');
-            if(!list) return; // FIX: Ensure element exists
             list.innerHTML = '';
             Object.keys(onlineUsers).forEach(userKey => {
                 const isMuted = mutedUsers.has(userKey.toLowerCase());
@@ -975,7 +975,6 @@
 
         function renderBannedUserList() {
             const list = document.getElementById('banned-users-list');
-            if(!list) return; // FIX: Ensure element exists
             list.innerHTML = '';
             if (bannedUsers.size === 0) {
                 list.innerHTML = '<div class="text-zinc-600 text-xs italic">No banned users</div>';
