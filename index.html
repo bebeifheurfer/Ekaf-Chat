@@ -118,7 +118,7 @@
 <body class="bg-zinc-950 text-zinc-200 flex flex-col h-screen">
 
     <!-- Global Audio Player (Hidden) -->
-    <audio id="global-audio-player" class="hidden"></audio>
+    <audio id="global-audio-player" class="hidden" preload="auto"></audio>
 
     <!-- Audio Toast Notification -->
     <div id="audio-toast" class="fixed top-20 right-6 z-50 hidden audio-toast cursor-pointer bg-brand text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border-2 border-white/20">
@@ -186,7 +186,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                 </svg>
             </button>
-            <input type="text" id="message-input" placeholder="Type a message..." class="flex-grow bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all placeholder-zinc-500 font-medium">
+            <input type="text" id="message-input" autocomplete="off" placeholder="Type a message..." class="flex-grow bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all placeholder-zinc-500 font-medium">
             <button type="submit" class="bg-brand text-white p-3 rounded-xl hover:bg-brand-hover active:scale-95 transition-all shadow-lg shadow-brand/20 font-bold">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
@@ -293,7 +293,7 @@
                     <div class="p-3 bg-blue-950/20 rounded-lg border border-blue-900/30">
                         <label class="text-[10px] font-bold text-blue-400 uppercase">Global Audio Broadcast</label>
                         <div class="flex gap-2 items-center">
-                            <input type="file" id="admin-audio-input" accept="audio/*,.ogg,.mp3,.wav" class="hidden">
+                            <input type="file" id="admin-audio-input" accept="audio/*,.ogg,.mp3,.wav" class="hidden" autocomplete="off">
                             <button onclick="document.getElementById('admin-audio-input').click()" class="bg-blue-900/50 hover:bg-blue-800 text-blue-200 px-3 py-2 rounded-lg text-xs border border-blue-800 transition-colors flex-grow text-left truncate">
                                 <span id="audio-file-name">Select MP3/WAV/OGG...</span>
                             </button>
@@ -305,9 +305,9 @@
 
                     <div class="p-3 bg-red-950/20 rounded-lg border border-red-900/30">
                         <label class="text-[10px] font-bold text-red-400 uppercase">Broadcast Identity</label>
-                        <input type="text" id="broadcast-name" class="w-full bg-zinc-900 border border-red-900/50 p-2 rounded-lg text-sm mb-2 outline-none text-white" value="ADMIN">
+                        <input type="text" id="broadcast-name" autocomplete="off" class="w-full bg-zinc-900 border border-red-900/50 p-2 rounded-lg text-sm mb-2 outline-none text-white" value="ADMIN">
                         <div class="flex gap-2">
-                            <input type="text" id="broadcast-input" placeholder="Broadcast message..." class="flex-grow bg-zinc-900 border border-red-900/50 p-2 rounded-lg text-sm outline-none text-white">
+                            <input type="text" id="broadcast-input" autocomplete="off" placeholder="Broadcast message..." class="flex-grow bg-zinc-900 border border-red-900/50 p-2 rounded-lg text-sm outline-none text-white">
                             <button id="send-broadcast" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500">SEND</button>
                         </div>
                     </div>
@@ -323,8 +323,8 @@
                     <!-- Bot Factory -->
                     <div class="space-y-2">
                         <label class="text-[10px] font-bold text-zinc-500 uppercase">Cloud Bot Factory</label>
-                        <input type="text" id="new-bot-name" placeholder="Bot Name" class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm outline-none text-white">
-                        <textarea id="new-bot-messages" placeholder="Messages (one per line)..." class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm h-16 outline-none text-white"></textarea>
+                        <input type="text" id="new-bot-name" autocomplete="off" placeholder="Bot Name" class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm outline-none text-white">
+                        <textarea id="new-bot-messages" autocomplete="off" placeholder="Messages (one per line)..." class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-sm h-16 outline-none text-white"></textarea>
                         <button id="add-bot-btn" class="w-full bg-zinc-800 text-zinc-300 py-2 rounded-lg text-xs font-bold hover:bg-zinc-700">Deploy Bot</button>
                     </div>
 
@@ -375,7 +375,7 @@
 
         let lastMessageTime = 0;
         const SPAM_COOLDOWN_MS = 2000;
-        const BLOCKED_WORDS = ["badword", "naughty", "slur_placeholder"]; 
+        const BLOCKED_WORDS = ["faggot", "nigga", "nigger", "nig"]; 
 
         const themes = {
             red: { main: '#ef4444', hover: '#dc2626' },
@@ -1087,7 +1087,7 @@
             if(isAdmin) { renderBotList(); renderBannedUserList(); }
         }
 
-        document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) { await sbClient.from('messages').delete().gt('id', 0); location.reload(); } };
+        document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) await sbClient.from('messages').delete().gt('id', 0); };
         document.getElementById('send-broadcast').onclick = () => { const inp = document.getElementById('broadcast-input'); if (inp.value.trim()) sendMsg(inp.value.trim(), "ADMIN", "text-red-600", true); };
         document.getElementById('add-bot-btn').onclick = async () => {
             const name = document.getElementById('new-bot-name').value.trim();
