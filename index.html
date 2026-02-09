@@ -23,6 +23,10 @@
                         'fire': 'fire 2s ease-in-out infinite alternate',
                         'spin-slow': 'spin 20s linear infinite',
                         'scanline': 'scanline 8s linear infinite',
+                        /* Restored Glitch Animations */
+                        'scanline-scroll': 'scanline-scroll 4s linear infinite',
+                        'grid-scroll': 'grid-scroll 20s linear infinite',
+                        'crt-flicker': 'crt-flicker 0.1s infinite',
                     },
                     keyframes: {
                         glitch: {
@@ -34,9 +38,19 @@
                             '0%': { textShadow: '0 0 10px #ef4444, 0 0 20px #f97316' },
                             '100%': { textShadow: '0 0 5px #f97316, 0 0 10px #eab308' }
                         },
-                        scanline: {
+                        /* Restored Glitch Keyframes */
+                        'scanline-scroll': {
                             '0%': { backgroundPosition: '0% 0%' },
                             '100%': { backgroundPosition: '0% 100%' }
+                        },
+                        'grid-scroll': {
+                            '0%': { backgroundPosition: '0 0' },
+                            '100%': { backgroundPosition: '40px 40px' }
+                        },
+                        'crt-flicker': {
+                            '0%': { opacity: '0.98' },
+                            '50%': { opacity: '1' },
+                            '100%': { opacity: '0.99' }
                         }
                     }
                 }
@@ -45,12 +59,11 @@
     </script>
 
     <style>
-        /* Import Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); /* Glitch */
-        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap'); /* Fire */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap'); /* Black Hole */
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap'); /* Ice */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
         
         :root {
             --brand-main: #f97316;
@@ -95,19 +108,27 @@
         }
         @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
         
-        /* GLITCH THEME */
+        /* GLITCH THEME (FIXED & RESTORED) */
         body.theme-glitch { 
             background-color: #050505;
             background-image: 
-                linear-gradient(0deg, transparent 24%, rgba(0, 255, 0, .03) 25%, rgba(0, 255, 0, .03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .03) 75%, rgba(0, 255, 0, .03) 76%, transparent 77%, transparent),
-                linear-gradient(90deg, transparent 24%, rgba(0, 255, 0, .03) 25%, rgba(0, 255, 0, .03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .03) 75%, rgba(0, 255, 0, .03) 76%, transparent 77%, transparent);
-            background-size: 50px 50px;
+                linear-gradient(rgba(34, 197, 94, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center top;
+            animation: crt-flicker 0.1s infinite, grid-scroll 20s linear infinite;
         }
         body.theme-glitch::before {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: -1; background-size: 100% 2px, 3px 100%; pointer-events: none;
-            animation: scanline 6s linear infinite;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(34, 197, 94, 0.1) 51%, transparent 55%);
+            background-size: 100% 8px;
+            animation: scanline-scroll 4s linear infinite;
+            pointer-events: none; z-index: -1;
+        }
+        body.theme-glitch::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(34, 197, 94, 0.05) 2px, rgba(34, 197, 94, 0.05) 3px);
+            pointer-events: none; z-index: -2;
         }
 
         /* BLACK HOLE THEME */
@@ -371,12 +392,15 @@
                 </div>
 
                 <div class="space-y-4">
+                    <!-- Global Audio Control -->
                     <div class="p-3 bg-blue-950/20 rounded-lg border border-blue-900/30">
-                        <label class="text-[10px] font-bold text-blue-400 uppercase">Global Audio</label>
+                        <label class="text-[10px] font-bold text-blue-400 uppercase">Global Audio Broadcast</label>
                         <div class="flex gap-2 items-center">
                             <input type="file" id="admin-audio-input" accept="audio/*,.ogg,.mp3,.wav" class="hidden" autocomplete="off">
-                            <button onclick="document.getElementById('admin-audio-input').click()" class="bg-blue-900/50 hover:bg-blue-800 text-blue-200 px-3 py-2 rounded-lg text-xs border border-blue-800 transition-colors flex-grow text-left truncate"><span id="audio-file-name">Select Audio...</span></button>
-                            <button id="btn-broadcast-audio" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors">PLAY</button>
+                            <button onclick="document.getElementById('admin-audio-input').click()" class="bg-blue-900/50 hover:bg-blue-800 text-blue-200 px-3 py-2 rounded-lg text-xs border border-blue-800 transition-colors flex-grow text-left truncate">
+                                <span id="audio-file-name">Select MP3/WAV/OGG...</span>
+                            </button>
+                            <button id="btn-broadcast-audio" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20">PLAY</button>
                         </div>
                     </div>
 
@@ -432,6 +456,7 @@
         let mutedUsers = new Set();
         let bannedUsers = new Set();
         let knownAdmins = new Set();
+        let knownVips = new Set();
         knownAdmins.add("Admin1");
         
         let onlineUsers = {}; 
@@ -524,10 +549,13 @@
 
             try {
                 sbClient = supabase.createClient(SB_URL, SB_KEY);
+                
                 try {
                     const { data: adminList } = await sbClient.from('admins').select('username');
                     if (adminList) adminList.forEach(a => knownAdmins.add(a.username));
-                } catch (e) {}
+                    const { data: vipList } = await sbClient.from('theme_users').select('username');
+                    if (vipList) vipList.forEach(u => knownVips.add(u.username));
+                } catch (e) { console.warn("Admins table missing or error", e); }
 
                 await syncSecurity();
 
@@ -554,7 +582,7 @@
                 const storedName = localStorage.getItem('ekaf_username');
                 if (storedName) document.getElementById('name-input').value = storedName;
                 
-                if (knownAdmins.has(storedName)) {
+                if (knownAdmins.has(storedName) || knownVips.has(storedName)) {
                      document.getElementById('password-area').classList.remove('hidden');
                 } else {
                     setTheme(currentTheme); 
@@ -934,8 +962,12 @@
         };
 
         document.getElementById('name-input').oninput = (e) => {
-            if (knownAdmins.has(e.target.value.trim())) document.getElementById('password-area').classList.remove('hidden');
-            else document.getElementById('password-area').classList.add('hidden');
+            const val = e.target.value.trim();
+            if (knownAdmins.has(val) || knownVips.has(val)) {
+                document.getElementById('password-area').classList.remove('hidden');
+            } else {
+                document.getElementById('password-area').classList.add('hidden');
+            }
         };
 
         document.getElementById('save-name').onclick = async () => {
