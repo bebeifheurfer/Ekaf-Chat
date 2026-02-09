@@ -63,7 +63,7 @@
             color: #fff !important;
         }
 
-        /* Admin Message Bubble */
+        /* Admin Message Bubble (Synced with Border) */
         @keyframes rainbow-bg {
             0% { background-color: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
             16% { background-color: #f97316; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
@@ -205,10 +205,30 @@
     <div id="message-menu" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm" onclick="this.classList.add('hidden')">
         <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 w-64 shadow-2xl space-y-2 transform scale-100 transition-all" onclick="event.stopPropagation()">
             <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Message Options</h3>
-            <button id="menu-reply-btn" class="w-full text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">Reply</button>
-            <button id="menu-mute-btn" class="w-full text-left px-4 py-3 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 border border-yellow-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">Mute User</button>
-            <button id="menu-kick-btn" class="w-full text-left px-4 py-3 bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">Kick User</button>
-            <button id="menu-ban-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">BAN USER</button>
+            <button id="menu-reply-btn" class="w-full text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Reply
+            </button>
+            <button id="menu-mute-btn" class="w-full text-left px-4 py-3 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 border border-yellow-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                Mute User
+            </button>
+            <button id="menu-kick-btn" class="w-full text-left px-4 py-3 bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                </svg>
+                Kick User
+            </button>
+            <button id="menu-ban-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                BAN USER
+            </button>
         </div>
     </div>
 
@@ -287,6 +307,7 @@
                 </div>
 
                 <div class="space-y-4">
+                    <!-- Global Audio Control -->
                     <div class="p-3 bg-blue-950/20 rounded-lg border border-blue-900/30">
                         <label class="text-[10px] font-bold text-blue-400 uppercase">Global Audio Broadcast</label>
                         <div class="flex gap-2 items-center">
@@ -361,7 +382,7 @@
 
         let lastMessageTime = 0;
         const SPAM_COOLDOWN_MS = 2000;
-        const BLOCKED_WORDS = ["nigger", "nigga", "faggot"]; 
+        const BLOCKED_WORDS = ["badword", "naughty", "slur_placeholder"]; 
 
         const themes = {
             red: { main: '#ef4444', hover: '#dc2626', textClass: 'text-red-500' },
@@ -574,7 +595,9 @@
             const channel = sbClient.channel('global_chat_room');
 
             channel
+                // Listen for Messages
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                    // Remove "No messages" placeholder
                     const placeholder = document.querySelector('#chat-feed .text-zinc-600');
                     if (placeholder) placeholder.parentElement.remove();
                     
@@ -586,6 +609,7 @@
                     const el = document.getElementById(`msg-${payload.old.id}`);
                     if (el) el.remove();
                 })
+                // Listen for Mutes
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'muted_users' }, payload => {
                     mutedUsers.add(payload.new.user_name);
                     if (isAdmin) renderAdminUserList();
@@ -594,9 +618,11 @@
                     mutedUsers.delete(payload.old.user_name);
                     if (isAdmin) renderAdminUserList();
                 })
+                // Listen for Kicks
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kicks' }, payload => {
                     if (payload.new.user_name === currentUser) applyKick();
                 })
+                // Listen for Bans
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'banned_users' }, payload => {
                     bannedUsers.add(payload.new.user_name);
                     if (payload.new.user_name === currentUser) applyBan();
@@ -606,18 +632,22 @@
                     bannedUsers.delete(payload.old.user_name);
                     if (isAdmin) renderBannedUserList();
                 })
+                // Listen for Settings
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'settings' }, payload => {
                     if (payload.new.key === 'bots_enabled') {
                         botsEnabled = payload.new.value;
                         document.getElementById('bot-toggle').checked = botsEnabled;
                     }
                 })
+                // Listen for Bots
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => {
                     loadBots();
                 })
+                // Listen for New Admins
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admins' }, payload => {
                     knownAdmins.add(payload.new.username);
                 })
+                // Listen for Audio Triggers (New)
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audio_triggers' }, payload => {
                     playAudio(payload.new.url);
                 })
@@ -626,29 +656,36 @@
                 });
         }
 
+        // --- AUDIO PLAYBACK ---
         function playAudio(url) {
             const player = document.getElementById('global-audio-player');
             const toast = document.getElementById('audio-toast');
             
+            // Reset player
             player.pause();
             player.currentTime = 0;
             player.src = url;
             
+            // Try to play immediately
             player.play().catch(error => {
                 console.log("Autoplay blocked, showing toast");
+                // Show toast if blocked by browser policy
                 toast.classList.remove('hidden');
                 
+                // Add one-time click listener to toast to play and hide
                 toast.onclick = () => {
                     player.play();
                     toast.classList.add('hidden');
                 };
                 
+                // Also auto-hide toast after 10s
                 setTimeout(() => {
                     toast.classList.add('hidden');
                 }, 10000);
             });
         }
 
+        // --- ADMIN AUDIO BROADCAST ---
         document.getElementById('admin-audio-input').onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -670,6 +707,7 @@
             btn.disabled = true;
 
             try {
+                // 1. Upload to chat-uploads (reuse bucket)
                 const fileName = `broadcast_${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`; 
                 const { error: uploadError } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
                 
@@ -677,6 +715,7 @@
                 
                 const { data: { publicUrl } } = sbClient.storage.from('chat-uploads').getPublicUrl(fileName);
                 
+                // 2. Trigger Event
                 const { error: dbError } = await sbClient.from('audio_triggers').insert([{ 
                     url: publicUrl,
                     triggered_by: currentUser
@@ -686,6 +725,7 @@
                 
                 alert("Audio Broadcast Sent!");
                 
+                // Reset UI
                 fileInput.value = '';
                 document.getElementById('audio-file-name').textContent = "Select MP3/WAV/OGG...";
 
@@ -730,10 +770,9 @@
             
             if (!isClean(text)) return alert("Restricted language.");
             
-            const finalColor = isBroadcast ? color : themes[currentTheme].textClass;
-
+            // Try Insert and Alert on Error
             const { data, error } = await sbClient.from('messages').insert([{ 
-                text, user_name: user, color: finalColor, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
+                text, user_name: user, color: isBroadcast ? color : themes[currentTheme].textClass, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
             }]).select().single();
 
             if (error) {
@@ -742,6 +781,7 @@
             }
 
             if (data) {
+                // Remove placeholder if exists
                 const placeholder = document.querySelector('#chat-feed .text-zinc-600');
                 if (placeholder) placeholder.parentElement.remove();
                 
@@ -766,7 +806,7 @@
         }
         document.getElementById('cancel-reply').onclick = cancelReply;
 
-        // --- ADMIN ACTIONS ---
+        // --- ADMIN ACTIONS (With Error Feedback) ---
         window.toggleMute = async (targetUser) => {
             if (!isAdmin || knownAdmins.has(targetUser)) return;
             try {
@@ -957,7 +997,7 @@
             }
 
             users.forEach(userKey => {
-                // Get avatar, color and status from presence state
+                // Get avatar and color from presence state
                 const sessions = onlineUsers[userKey];
                 const session = sessions && sessions[0] ? sessions[0] : {};
                 const avatarUrl = session.avatar || null;
