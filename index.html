@@ -17,6 +17,27 @@
                             hover: 'var(--brand-hover)',
                             dim: 'var(--brand-dim)',
                         }
+                    },
+                    animation: {
+                        'glitch': 'glitch 1s linear infinite',
+                        'fire': 'fire 2s ease-in-out infinite alternate',
+                        'spin-slow': 'spin 20s linear infinite',
+                        'scanline': 'scanline 8s linear infinite',
+                    },
+                    keyframes: {
+                        glitch: {
+                            '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
+                            '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
+                            '62%': { transform: 'translate(0,0) skew(5deg)' },
+                        },
+                        fire: {
+                            '0%': { textShadow: '0 0 10px #ef4444, 0 0 20px #f97316' },
+                            '100%': { textShadow: '0 0 5px #f97316, 0 0 10px #eab308' }
+                        },
+                        scanline: {
+                            '0%': { backgroundPosition: '0% 0%' },
+                            '100%': { backgroundPosition: '0% 100%' }
+                        }
                     }
                 }
             }
@@ -24,21 +45,102 @@
     </script>
 
     <style>
+        /* Import Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); /* Glitch */
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap'); /* Fire */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap'); /* Black Hole */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap'); /* Ice */
         
         :root {
-            /* Default Orange Theme */
             --brand-main: #f97316;
             --brand-hover: #ea580c;
             --brand-dim: rgba(249, 115, 22, 0.2);
         }
 
-        /* DARK MODE BASE */
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #e4e4e7; overflow: hidden; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #09090b; 
+            color: #e4e4e7; 
+            overflow: hidden; 
+            transition: background 0.5s ease; 
+        }
         
-        /* Custom Scrollbar */
+        /* --- ADMIN THEME BACKGROUNDS --- */
+        body.theme-ice { 
+            background: linear-gradient(to bottom, #0f172a, #083344, #155e75); 
+            background-size: 100% 400%;
+            animation: bg-shift 15s ease infinite;
+        }
+
+        /* FIRE THEME */
+        body.theme-fire { 
+            background: linear-gradient(to top, #450a0a, #2b0606, #09090b); 
+            position: relative;
+        }
+        body.theme-fire::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(3px 3px at 20px 30px, rgba(251, 191, 36, 0.6), rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 40px 70px, rgba(249, 115, 22, 0.6), rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 50px 160px, rgba(239, 68, 68, 0.6), rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.4), rgba(0,0,0,0));
+            background-repeat: repeat; background-size: 200px 200px;
+            animation: embers 4s linear infinite; z-index: -1; pointer-events: none;
+        }
+        body.theme-fire::after {
+             content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+             background: linear-gradient(to top, rgba(220, 38, 38, 0.15), transparent);
+             z-index: -2; pointer-events: none;
+        }
+        @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
+        
+        /* GLITCH THEME */
+        body.theme-glitch { 
+            background-color: #050505;
+            background-image: 
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 0, .03) 25%, rgba(0, 255, 0, .03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .03) 75%, rgba(0, 255, 0, .03) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 0, .03) 25%, rgba(0, 255, 0, .03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .03) 75%, rgba(0, 255, 0, .03) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+        }
+        body.theme-glitch::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: -1; background-size: 100% 2px, 3px 100%; pointer-events: none;
+            animation: scanline 6s linear infinite;
+        }
+
+        /* BLACK HOLE THEME */
+        body.theme-blackhole { 
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0));
+            background-repeat: repeat; background-size: 200px 200px; overflow: hidden;
+        }
+        body.theme-blackhole::before {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 700px; height: 700px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, #000 30%, transparent 35%), 
+                        conic-gradient(from 0deg, #2e1065, #7c3aed, #fff, #7c3aed, #2e1065);
+            border-radius: 50%; filter: blur(30px); animation: spin-slow 15s linear infinite;
+            opacity: 0.8; z-index: -1; box-shadow: 0 0 150px #5b21b6;
+        }
+        body.theme-blackhole::after {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 280px; height: 280px;
+            transform: translate(-50%, -50%); background: #000; border-radius: 50%;
+            z-index: -1; box-shadow: 0 0 50px #000, inset 0 0 60px #4c1d95;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        @keyframes bg-shift { 0% { background-position: 0% 0%; } 50% { background-position: 0% 100%; } 100% { background-position: 0% 0%; } }
+
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #18181b; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--brand-main); }
 
@@ -46,55 +148,30 @@
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Admin Rainbow Animation (Border) */
-        @keyframes rainbow-border {
-            0% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
-            16% { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
-            33% { border-color: #eab308; box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); }
-            50% { border-color: #22c55e; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
-            66% { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
-            83% { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
-            100% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
-        }
-        .rainbow-mode {
-            animation: rainbow-border 4s linear infinite;
-            border-width: 2px !important;
-            background-color: #18181b !important;
-            color: #fff !important;
-        }
-
-        /* Admin Message Bubble (Synced with Border) */
-        @keyframes rainbow-bg {
-            0% { background-color: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-            16% { background-color: #f97316; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
-            33% { background-color: #eab308; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3); }
-            50% { background-color: #22c55e; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
-            66% { background-color: #3b82f6; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
-            83% { background-color: #a855f7; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3); }
-            100% { background-color: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-        }
-        .rainbow-bubble {
-            animation: rainbow-bg 4s linear infinite;
-            color: white !important;
-            border: none !important;
-            font-weight: 700;
-        }
-
-        /* Text Rainbow Effect (For User List) */
+        /* --- TEXT STYLES --- */
         .text-rainbow {
             background-image: linear-gradient(45deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #a855f7, #ef4444);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: text-flow 3s linear infinite;
-            font-weight: 900 !important;
+            background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: text-flow 3s linear infinite; font-weight: 900 !important; font-family: 'Inter', sans-serif;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
-        @keyframes text-flow {
-            to { background-position: 200% center; }
-        }
+        @keyframes text-flow { to { background-position: 200% center; } }
+        
+        .text-glitch { color: #4ade80 !important; font-family: 'VT323', monospace; font-size: 1.1em; letter-spacing: 1px; text-shadow: 2px 0 #ef4444; }
+        .text-ice { color: #a5f3fc !important; font-family: 'Cinzel', serif; text-shadow: 0 0 8px #0891b2, 0 0 15px #22d3ee; }
+        .text-fire { font-family: 'Creepster', cursive; background: linear-gradient(to top, #ef4444, #fcd34d); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 -2px 10px rgba(249, 115, 22, 0.4); font-size: 1.1em; letter-spacing: 1px; }
+        .text-void { color: #ddd6fe !important; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 5px #7c3aed, 0 0 10px #4c1d95; letter-spacing: -0.5px; }
 
-        /* Toggle Switch */
+        .rainbow-mode { animation: rainbow-border 4s linear infinite; border-width: 2px !important; background-color: #18181b !important; color: #fff !important; }
+        .rainbow-bubble { animation: rainbow-bg 4s linear infinite; color: white !important; border: none !important; font-weight: 700; }
+
+        /* Bubble Specifics */
+        .glitch-bubble { background-color: rgba(5, 20, 5, 0.95); border: 1px solid #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.4); color: #22c55e !important; font-family: 'VT323', monospace; font-size: 1.1em; letter-spacing: 0.5px; }
+        .ice-bubble { background: linear-gradient(135deg, rgba(8, 51, 68, 0.9), rgba(21, 94, 117, 0.9)); border: 1px solid #22d3ee; box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); color: #a5f3fc !important; font-family: 'Cinzel', serif; font-weight: bold; }
+        .fire-bubble { background: linear-gradient(to top, #450a0a, #7f1d1d); border: 1px solid #f97316; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); color: #fbbf24 !important; font-family: 'Creepster', cursive; font-size: 1.1em; letter-spacing: 1px; }
+        .blackhole-bubble { background: radial-gradient(circle, #000 0%, #2e1065 120%); border: 1px solid #7c3aed; box-shadow: 0 0 15px rgba(76, 29, 149, 0.6); color: #ddd6fe !important; font-family: 'Orbitron', sans-serif; letter-spacing: -0.5px; }
+
+        /* UI Elements */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3f3f46; transition: .4s; border-radius: 24px; }
@@ -102,51 +179,47 @@
         input:checked + .slider { background-color: var(--brand-main); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* Media Styles */
-        .media-content { 
-            width: 100%; max-width: 500px; height: auto; 
-            border-radius: 12px; margin-top: 8px; display: block; 
-            object-fit: cover; border: 1px solid #3f3f46; background: #000;
-        }
+        .media-content { width: 100%; max-width: 500px; height: auto; border-radius: 12px; margin-top: 8px; display: block; object-fit: cover; border: 1px solid #3f3f46; background: #000; }
         .aspect-video { aspect-ratio: 16 / 9; }
-        
         .chat-bubble { transition: filter 0.2s; cursor: pointer; }
         .chat-bubble:hover { filter: brightness(1.1); }
-
-        /* Color Buttons */
-        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s; }
+        
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s; position: relative; overflow: hidden; }
         .color-btn:hover { transform: scale(1.1); }
         .color-btn.active { border-color: white; box-shadow: 0 0 0 2px var(--brand-main); }
-
-        /* Audio Toast */
+        
         .audio-toast { animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes bounceIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Dynamic Theme Classes */
+        .theme-border { border-color: var(--brand-main) !important; }
+        .theme-ring:focus { --tw-ring-color: var(--brand-main) !important; }
+        .theme-text { color: var(--brand-main) !important; }
+        .theme-bg { background-color: var(--brand-main) !important; }
+        
+        @keyframes rainbow-border { 0% { border-color: #ef4444; } 16% { border-color: #f97316; } 33% { border-color: #eab308; } 50% { border-color: #22c55e; } 66% { border-color: #3b82f6; } 83% { border-color: #a855f7; } 100% { border-color: #ef4444; } }
+        @keyframes rainbow-bg { 0% { background-color: #ef4444; } 16% { background-color: #f97316; } 33% { background-color: #eab308; } 50% { background-color: #22c55e; } 66% { background-color: #3b82f6; } 83% { background-color: #a855f7; } 100% { background-color: #ef4444; } }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200 flex flex-col h-screen">
 
-    <!-- Global Audio Player (Hidden) -->
     <audio id="global-audio-player" class="hidden" preload="auto"></audio>
 
-    <!-- Audio Toast Notification -->
     <div id="audio-toast" class="fixed top-20 right-6 z-50 hidden audio-toast cursor-pointer bg-brand text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border-2 border-white/20">
         <div class="text-2xl">🔊</div>
-        <div>
-            <p class="font-black uppercase text-xs tracking-wider">Audio Broadcast</p>
-            <p class="text-sm font-medium opacity-90">Click to listen!</p>
-        </div>
+        <div><p class="font-black uppercase text-xs tracking-wider">Audio Broadcast</p><p class="text-sm font-medium opacity-90">Click to listen!</p></div>
     </div>
 
     <!-- Header -->
-    <header class="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center shadow-lg z-20">
+    <header class="bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-800 px-6 py-4 flex justify-between items-center shadow-lg z-20">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-brand rounded-xl flex items-center justify-center text-white font-black text-xl italic tracking-tighter shadow-brand/50 shadow-lg transform -skew-x-6 transition-colors duration-300">S</div>
+            <div class="w-10 h-10 bg-brand rounded-xl flex items-center justify-center text-white font-black text-xl italic tracking-tighter shadow-brand/50 shadow-lg transform -skew-x-6 transition-colors duration-300 theme-bg">S</div>
             <div>
                 <h1 class="text-2xl font-black text-white leading-none italic uppercase tracking-tight">SLAP CHAT</h1>
                 <div class="flex items-center gap-2 mt-1">
-                    <div id="status-dot" class="w-2 h-2 rounded-full bg-brand animate-pulse"></div>
+                    <div id="status-dot" class="w-2 h-2 rounded-full theme-bg animate-pulse"></div>
                     <span id="status-text" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Connected</span>
-                    <button id="online-badge" class="hidden bg-zinc-800 text-brand border border-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-bold hover:bg-zinc-700 transition-colors cursor-pointer">0 ONLINE</button>
+                    <button id="online-badge" class="hidden bg-zinc-800 text-brand border border-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-bold hover:bg-zinc-700 transition-colors cursor-pointer theme-text theme-border">0 ONLINE</button>
                 </div>
             </div>
         </div>
@@ -155,12 +228,12 @@
             <div class="text-right">
                 <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1">Signed In As</p>
                 <div class="flex items-center justify-end gap-3">
-                    <p id="display-name" class="text-sm font-bold text-brand">Guest</p>
+                    <p id="display-name" class="text-sm font-bold text-brand theme-text">Guest</p>
                     <img id="header-avatar" src="" class="w-10 h-10 rounded-full bg-zinc-800 object-cover hidden border-2 border-zinc-700">
                 </div>
             </div>
             <button id="open-settings" class="p-2 hover:bg-zinc-800 rounded-full transition-colors group">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-zinc-400 group-hover:text-brand transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-zinc-400 group-hover:text-brand transition-colors theme-text">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                 </svg>
             </button>
@@ -168,18 +241,18 @@
     </header>
 
     <!-- Chat View -->
-    <main id="chat-feed" class="flex-grow overflow-y-auto p-4 space-y-6 bg-zinc-950 chat-container">
+    <main id="chat-feed" class="flex-grow overflow-y-auto p-4 space-y-6 chat-container relative z-10">
         <div id="loading-state" class="h-full flex flex-col items-center justify-center text-zinc-600">
-            <div class="w-12 h-12 border-4 border-brand/20 border-t-brand rounded-full animate-spin mb-4"></div>
+            <div class="w-12 h-12 border-4 border-brand/20 border-t-brand rounded-full animate-spin mb-4 theme-border"></div>
             <p class="font-bold animate-pulse uppercase tracking-widest text-xs">Loading The Void...</p>
         </div>
     </main>
 
     <!-- Input -->
-    <footer class="bg-zinc-900 border-t border-zinc-800 p-4 pb-6 z-20 relative">
-        <div id="reply-bar" class="hidden absolute -top-12 left-4 right-4 bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-t-xl flex justify-between items-center text-xs shadow-lg">
+    <footer class="bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-800 p-4 pb-6 z-20 relative">
+        <div id="reply-bar" class="hidden absolute -top-12 left-4 right-4 bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-t-xl flex justify-between items-center text-xs shadow-lg backdrop-blur-md">
             <div class="flex items-center gap-2 overflow-hidden">
-                <span class="text-brand font-bold">Replying to <span id="reply-to-user">User</span>:</span>
+                <span class="theme-text font-bold">Replying to <span id="reply-to-user">User</span>:</span>
                 <span id="reply-to-text" class="truncate max-w-[200px] opacity-70 italic">message content...</span>
             </div>
             <button id="cancel-reply" class="text-zinc-500 hover:text-white font-bold text-lg leading-none">&times;</button>
@@ -187,13 +260,13 @@
 
         <form id="chat-form" class="max-w-5xl mx-auto flex gap-3">
             <input type="file" id="chat-file-input" class="hidden" accept="image/*,video/*">
-            <button type="button" id="media-btn" class="p-3 text-zinc-400 hover:text-brand hover:bg-zinc-800 rounded-xl transition-all" title="Upload Image/Video">
+            <button type="button" id="media-btn" class="p-3 text-zinc-400 hover:text-brand hover:bg-zinc-800 rounded-xl transition-all theme-text" title="Upload Image/Video">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                 </svg>
             </button>
-            <input type="text" id="message-input" autocomplete="off" placeholder="Type a message..." class="flex-grow bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all placeholder-zinc-500 font-medium">
-            <button type="submit" class="bg-brand text-white p-3 rounded-xl hover:bg-brand-hover active:scale-95 transition-all shadow-lg shadow-brand/20 font-bold">
+            <input type="text" id="message-input" autocomplete="off" placeholder="Type a message..." class="flex-grow bg-zinc-800 border-2 border-zinc-700 text-white rounded-xl px-4 py-3 focus:ring-0 focus:outline-none transition-all placeholder-zinc-500 font-medium theme-border">
+            <button type="submit" class="bg-brand text-white p-3 rounded-xl hover:bg-brand-hover active:scale-95 transition-all shadow-lg shadow-brand/20 font-bold theme-bg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
                 </svg>
@@ -205,30 +278,10 @@
     <div id="message-menu" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm" onclick="this.classList.add('hidden')">
         <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 w-64 shadow-2xl space-y-2 transform scale-100 transition-all" onclick="event.stopPropagation()">
             <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Message Options</h3>
-            <button id="menu-reply-btn" class="w-full text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                </svg>
-                Reply
-            </button>
-            <button id="menu-mute-btn" class="w-full text-left px-4 py-3 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 border border-yellow-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                </svg>
-                Mute User
-            </button>
-            <button id="menu-kick-btn" class="w-full text-left px-4 py-3 bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                </svg>
-                Kick User
-            </button>
-            <button id="menu-ban-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-                BAN USER
-            </button>
+            <button id="menu-reply-btn" class="w-full text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">Reply</button>
+            <button id="menu-mute-btn" class="w-full text-left px-4 py-3 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 border border-yellow-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">Mute User</button>
+            <button id="menu-kick-btn" class="w-full text-left px-4 py-3 bg-orange-900/20 hover:bg-orange-900/40 text-orange-500 border border-orange-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">Kick User</button>
+            <button id="menu-ban-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">BAN USER</button>
         </div>
     </div>
 
@@ -236,7 +289,7 @@
     <div id="users-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden" onclick="this.classList.add('hidden')">
         <div class="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl overflow-hidden flex flex-col max-h-[80vh] transform scale-100" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4 border-b border-zinc-800 pb-4">
-                <h2 class="text-lg font-black text-white uppercase tracking-widest text-brand">Active Users</h2>
+                <h2 class="text-lg font-black text-white uppercase tracking-widest theme-text">Active Users</h2>
                 <button onclick="document.getElementById('users-modal').classList.add('hidden')" class="text-zinc-500 hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -274,6 +327,17 @@
                     </div>
                 </div>
 
+                <div id="admin-theme-selector-area" class="hidden mb-6 pb-6 border-b border-zinc-800">
+                    <label class="text-[10px] font-bold text-brand uppercase mb-2 block">Admin Theme (Changes BG)</label>
+                    <div class="flex gap-3 justify-center flex-wrap">
+                        <div class="color-btn bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500" onclick="setAdminTheme('rainbow')" title="Rainbow"></div>
+                        <div class="color-btn bg-black border-green-500" onclick="setAdminTheme('glitch')" title="Glitch (Matrix)"></div>
+                        <div class="color-btn bg-cyan-500 shadow-cyan-500/50" onclick="setAdminTheme('ice')" title="Ice"></div>
+                        <div class="color-btn bg-orange-600 shadow-orange-600/50" onclick="setAdminTheme('fire')" title="Fire"></div>
+                        <div class="color-btn bg-violet-950 border-violet-500" onclick="setAdminTheme('blackhole')" title="Black Hole"></div>
+                    </div>
+                </div>
+
                 <h3 class="text-xs font-bold uppercase text-zinc-500 mb-4 tracking-wider">Profile Setup</h3>
                 <div class="mb-4">
                     <label class="text-[10px] font-bold text-zinc-400 uppercase mb-1 block">Display Name</label>
@@ -287,7 +351,7 @@
                     <p class="text-xs font-bold text-red-500 mb-1">ADMIN ACCESS</p>
                     <input type="password" id="admin-password" placeholder="Password" class="w-full bg-zinc-800 border border-red-900/50 p-3 rounded-lg outline-none focus:border-red-500 text-white">
                 </div>
-                <button id="save-name" class="w-full bg-brand text-white py-3 rounded-lg font-bold uppercase tracking-wide hover:bg-brand-hover transition-colors shadow-lg shadow-brand/20">Save Profile</button>
+                <button id="save-name" class="w-full bg-brand text-white py-3 rounded-lg font-bold uppercase tracking-wide hover:bg-brand-hover transition-colors shadow-lg shadow-brand/20 theme-bg">Save Profile</button>
             </section>
 
             <!-- Dev Section -->
@@ -307,15 +371,12 @@
                 </div>
 
                 <div class="space-y-4">
-                    <!-- Global Audio Control -->
                     <div class="p-3 bg-blue-950/20 rounded-lg border border-blue-900/30">
-                        <label class="text-[10px] font-bold text-blue-400 uppercase">Global Audio Broadcast</label>
+                        <label class="text-[10px] font-bold text-blue-400 uppercase">Global Audio</label>
                         <div class="flex gap-2 items-center">
                             <input type="file" id="admin-audio-input" accept="audio/*,.ogg,.mp3,.wav" class="hidden" autocomplete="off">
-                            <button onclick="document.getElementById('admin-audio-input').click()" class="bg-blue-900/50 hover:bg-blue-800 text-blue-200 px-3 py-2 rounded-lg text-xs border border-blue-800 transition-colors flex-grow text-left truncate">
-                                <span id="audio-file-name">Select MP3/WAV/OGG...</span>
-                            </button>
-                            <button id="btn-broadcast-audio" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20">PLAY</button>
+                            <button onclick="document.getElementById('admin-audio-input').click()" class="bg-blue-900/50 hover:bg-blue-800 text-blue-200 px-3 py-2 rounded-lg text-xs border border-blue-800 transition-colors flex-grow text-left truncate"><span id="audio-file-name">Select Audio...</span></button>
+                            <button id="btn-broadcast-audio" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors">PLAY</button>
                         </div>
                     </div>
 
@@ -330,10 +391,7 @@
                     
                     <div class="flex items-center justify-between p-3 bg-zinc-900 rounded-lg border border-zinc-800">
                         <span class="text-xs font-bold text-zinc-300">Global Bots</span>
-                        <label class="switch">
-                            <input type="checkbox" id="bot-toggle" checked>
-                            <span class="slider"></span>
-                        </label>
+                        <label class="switch"><input type="checkbox" id="bot-toggle" checked><span class="slider"></span></label>
                     </div>
                     
                     <div class="space-y-2">
@@ -366,7 +424,9 @@
         let currentUser = localStorage.getItem('ekaf_username') || generateAnonName();
         let currentAvatar = localStorage.getItem('ekaf_avatar') || "";
         let currentTheme = localStorage.getItem('ekaf_theme') || "orange";
+        let currentAdminTheme = localStorage.getItem('ekaf_admin_theme') || "rainbow";
         let isAdmin = false;
+        let isThemeUser = false;
         let cloudBots = [];
         let botsEnabled = true;
         let mutedUsers = new Set();
@@ -393,6 +453,14 @@
             purple: { main: '#a855f7', hover: '#9333ea', textClass: 'text-purple-500' }
         };
 
+        const adminThemes = {
+            rainbow: { textClass: 'text-rainbow', bgClass: '' },
+            glitch: { textClass: 'text-glitch', bgClass: 'theme-glitch' },
+            ice: { textClass: 'text-ice', bgClass: 'theme-ice' },
+            fire: { textClass: 'text-fire', bgClass: 'theme-fire' },
+            blackhole: { textClass: 'text-void', bgClass: 'theme-blackhole' }
+        };
+
         function isClean(text) {
             const lower = text.toLowerCase();
             return !BLOCKED_WORDS.some(word => lower.includes(word));
@@ -410,13 +478,33 @@
             document.documentElement.style.setProperty('--brand-dim', t.main + '33'); 
             localStorage.setItem('ekaf_theme', colorName);
             currentTheme = colorName;
+            
+            if (!isAdmin && !isThemeUser && presenceChannel) trackPresence('active');
+        };
+
+        window.setAdminTheme = (themeName) => {
+            if (!adminThemes[themeName]) return;
+            document.body.classList.remove('theme-glitch', 'theme-ice', 'theme-fire', 'theme-blackhole');
+            const newClass = adminThemes[themeName].bgClass;
+            if (newClass) document.body.classList.add(newClass);
+            currentAdminTheme = themeName;
+            localStorage.setItem('ekaf_admin_theme', themeName);
+            
+            if (themeName === 'rainbow') startRainbowCycle();
+            else {
+                stopRainbowCycle();
+                if (themeName === 'glitch') document.documentElement.style.setProperty('--brand-main', '#4ade80');
+                if (themeName === 'ice') document.documentElement.style.setProperty('--brand-main', '#22d3ee');
+                if (themeName === 'fire') document.documentElement.style.setProperty('--brand-main', '#f97316');
+                if (themeName === 'blackhole') document.documentElement.style.setProperty('--brand-main', '#a78bfa');
+            }
+            if ((isAdmin || isThemeUser) && presenceChannel) trackPresence('active');
         };
 
         function startRainbowCycle() {
-            let hue = 0;
             if (rainbowInterval) clearInterval(rainbowInterval);
             rainbowInterval = setInterval(() => {
-                hue = (hue + 2) % 360;
+                let hue = (Date.now() / 20) % 360;
                 document.documentElement.style.setProperty('--brand-main', `hsl(${hue}, 90%, 60%)`);
                 document.documentElement.style.setProperty('--brand-hover', `hsl(${hue}, 90%, 50%)`);
                 document.documentElement.style.setProperty('--brand-dim', `hsla(${hue}, 90%, 60%, 0.2)`);
@@ -424,16 +512,10 @@
         }
 
         function stopRainbowCycle() {
-            if (rainbowInterval) {
-                clearInterval(rainbowInterval);
-                rainbowInterval = null;
-                setTheme(currentTheme); 
-            }
+            if (rainbowInterval) { clearInterval(rainbowInterval); rainbowInterval = null; }
         }
 
         async function init() {
-            setTheme(currentTheme);
-
             if (SB_URL.includes("PASTE_YOUR_URL_HERE") || !SB_URL) {
                 statusDot.className = "w-2 h-2 rounded-full bg-red-500";
                 statusText.textContent = "Keys Missing";
@@ -442,20 +524,14 @@
 
             try {
                 sbClient = supabase.createClient(SB_URL, SB_KEY);
-                
                 try {
                     const { data: adminList } = await sbClient.from('admins').select('username');
                     if (adminList) adminList.forEach(a => knownAdmins.add(a.username));
-                } catch (e) { console.warn("Admins table missing or error", e); }
+                } catch (e) {}
 
                 await syncSecurity();
 
-                const { data: initialMsgs, error } = await sbClient
-                    .from('messages')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(50);
-
+                const { data: initialMsgs, error } = await sbClient.from('messages').select('*').order('created_at', { ascending: false }).limit(50);
                 if (error) throw error; 
 
                 const loader = document.getElementById('loading-state');
@@ -469,22 +545,27 @@
                 if (initialMsgs && initialMsgs.length > 0) {
                     renderFullFeed(initialMsgs.reverse());
                 } else {
-                    document.getElementById('chat-feed').innerHTML = '<div class="h-full flex flex-col items-center justify-center text-zinc-600"><p class="font-bold text-xs uppercase tracking-widest">No messages yet. Say hi!</p></div>';
+                    document.getElementById('chat-feed').innerHTML = '<div id="empty-state" class="h-full flex flex-col items-center justify-center text-zinc-600"><p class="font-bold text-xs uppercase tracking-widest">No messages yet. Say hi!</p></div>';
                 }
                 
                 subscribeToChanges();
-                trackPresence('active');
-                updateHeaderProfile();
-                
                 startPolling();
 
-                document.getElementById('name-input').value = currentUser.startsWith("Anon-") ? "" : currentUser;
-                if (knownAdmins.has(currentUser)) document.getElementById('password-area').classList.remove('hidden');
+                const storedName = localStorage.getItem('ekaf_username');
+                if (storedName) document.getElementById('name-input').value = storedName;
                 
-                try { loadBots(); } catch (e) { console.warn("Bots table error", e); }
+                if (knownAdmins.has(storedName)) {
+                     document.getElementById('password-area').classList.remove('hidden');
+                } else {
+                    setTheme(currentTheme); 
+                    trackPresence('active');
+                }
+
+                updateHeaderProfile();
+                try { loadBots(); } catch (e) {}
 
             } catch (err) {
-                console.error("CRITICAL INIT ERROR:", err);
+                console.error(err);
                 statusDot.className = "w-2 h-2 rounded-full bg-red-500 animate-none";
                 statusText.textContent = "Msg Error";
                 const feed = document.getElementById('chat-feed');
@@ -499,23 +580,14 @@
                     const newBans = new Set();
                     banData.forEach(r => newBans.add(r.user_name.toLowerCase())); 
                     bannedUsers = newBans; 
-                    
-                    if (bannedUsers.has(currentUser.toLowerCase())) {
-                        applyBan();
-                    }
+                    if (bannedUsers.has(currentUser.toLowerCase())) applyBan();
                 }
-            } catch (e) { console.warn("Sync Bans Fail", e); }
-
+            } catch (e) {}
             try {
                 const checkTime = new Date(Date.now() - 300000).toISOString(); 
                 const { data: kickData } = await sbClient.from('kicks').select('user_name').gt('created_at', checkTime);
-                if (kickData) {
-                    kickData.forEach(r => {
-                        if (r.user_name.toLowerCase() === currentUser.toLowerCase()) applyKick();
-                    });
-                }
-            } catch (e) { console.warn("Sync Kicks Fail", e); }
-
+                if (kickData) kickData.forEach(r => { if (r.user_name.toLowerCase() === currentUser.toLowerCase()) applyKick(); });
+            } catch (e) {}
             try {
                 const { data: muteData } = await sbClient.from('muted_users').select('user_name');
                 if (muteData) {
@@ -523,20 +595,14 @@
                     muteData.forEach(r => newMutes.add(r.user_name.toLowerCase()));
                     mutedUsers = newMutes; 
                 }
-            } catch (e) { console.warn("Sync Mutes Fail", e); }
+            } catch (e) {}
         }
 
         function startPolling() {
             setInterval(async () => {
                 await syncSecurity();
                 const { data } = await sbClient.from('messages').select('*').order('created_at', { ascending: false }).limit(10);
-                if(data) {
-                    data.reverse().forEach(msg => {
-                        if (!renderedMessageIds.has(msg.id)) {
-                            renderMessage(msg, true);
-                        }
-                    });
-                }
+                if(data) data.reverse().forEach(msg => { if (!renderedMessageIds.has(msg.id)) renderMessage(msg, true); });
             }, 2000); 
         }
 
@@ -552,242 +618,106 @@
         }
 
         async function trackPresence(status = 'active') {
-            if (presenceChannel) {
-                await sbClient.removeChannel(presenceChannel);
-            }
-
-            presenceChannel = sbClient.channel('slap_presence', {
-                config: { presence: { key: currentUser } }
+            if (presenceChannel) await sbClient.removeChannel(presenceChannel);
+            presenceChannel = sbClient.channel('slap_presence', { config: { presence: { key: currentUser } } });
+            presenceChannel.on('presence', { event: 'sync' }, () => {
+                const state = presenceChannel.presenceState();
+                onlineUsers = state; 
+                const count = Object.keys(state).length;
+                document.getElementById('online-badge').textContent = `${count} ONLINE`;
+                if (isAdmin) renderAdminUserList();
+                renderPublicUserList(); 
+            }).subscribe(async (subStatus) => {
+                if (subStatus === 'SUBSCRIBED') {
+                    const userColor = (isAdmin || isThemeUser) ? `admin-${currentAdminTheme}` : themes[currentTheme].textClass;
+                    await presenceChannel.track({ online_at: new Date().toISOString(), avatar: currentAvatar, color: userColor, status: status });
+                }
             });
-
-            presenceChannel
-                .on('presence', { event: 'sync' }, () => {
-                    const state = presenceChannel.presenceState();
-                    onlineUsers = state; 
-                    const count = Object.keys(state).length;
-                    document.getElementById('online-badge').textContent = `${count} ONLINE`;
-                    if (isAdmin) renderAdminUserList();
-                    renderPublicUserList(); 
-                })
-                .subscribe(async (subStatus) => {
-                    if (subStatus === 'SUBSCRIBED') {
-                        const userColor = isAdmin ? 'rainbow' : themes[currentTheme].textClass;
-                        await presenceChannel.track({ 
-                            online_at: new Date().toISOString(),
-                            avatar: currentAvatar,
-                            color: userColor,
-                            status: status
-                        });
-                    }
-                });
         }
         
-        // Idle detection logic
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                trackPresence('idle');
-            } else {
-                trackPresence('active');
-            }
-        });
+        document.addEventListener('visibilitychange', () => { trackPresence(document.hidden ? 'idle' : 'active'); });
 
         function subscribeToChanges() {
             const channel = sbClient.channel('global_chat_room');
-
             channel
-                // Listen for Messages
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                    // Remove "No messages" placeholder
-                    const placeholder = document.querySelector('#chat-feed .text-zinc-600');
-                    if (placeholder) placeholder.parentElement.remove();
-                    
-                    if (!renderedMessageIds.has(payload.new.id)) {
-                        renderMessage(payload.new, true);
-                    }
+                    const empty = document.getElementById('empty-state');
+                    if (empty) empty.remove();
+                    if (!renderedMessageIds.has(payload.new.id)) renderMessage(payload.new, true);
                 })
                 .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, payload => {
                     const el = document.getElementById(`msg-${payload.old.id}`);
                     if (el) el.remove();
                 })
-                // Listen for Mutes
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'muted_users' }, payload => {
-                    mutedUsers.add(payload.new.user_name);
-                    if (isAdmin) renderAdminUserList();
-                })
-                .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'muted_users' }, payload => {
-                    mutedUsers.delete(payload.old.user_name);
-                    if (isAdmin) renderAdminUserList();
-                })
-                // Listen for Kicks
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kicks' }, payload => {
-                    if (payload.new.user_name === currentUser) applyKick();
-                })
-                // Listen for Bans
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'banned_users' }, payload => {
-                    bannedUsers.add(payload.new.user_name);
-                    if (payload.new.user_name === currentUser) applyBan();
-                    if (isAdmin) renderBannedUserList();
-                })
-                .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'banned_users' }, payload => {
-                    bannedUsers.delete(payload.old.user_name);
-                    if (isAdmin) renderBannedUserList();
-                })
-                // Listen for Settings
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'muted_users' }, () => syncSecurity())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'kicks' }, () => syncSecurity())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'banned_users' }, () => syncSecurity())
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'settings' }, payload => {
                     if (payload.new.key === 'bots_enabled') {
                         botsEnabled = payload.new.value;
                         document.getElementById('bot-toggle').checked = botsEnabled;
                     }
                 })
-                // Listen for Bots
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => {
-                    loadBots();
-                })
-                // Listen for New Admins
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'bots' }, () => loadBots())
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admins' }, payload => {
                     knownAdmins.add(payload.new.username);
                 })
-                // Listen for Audio Triggers (New)
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audio_triggers' }, payload => {
-                    playAudio(payload.new.url);
-                })
-                .subscribe((status) => {
-                    console.log("Realtime Status:", status);
-                });
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audio_triggers' }, payload => playAudio(payload.new.url))
+                .subscribe();
         }
 
-        // --- AUDIO PLAYBACK ---
         function playAudio(url) {
             const player = document.getElementById('global-audio-player');
             const toast = document.getElementById('audio-toast');
-            
-            // Reset player
-            player.pause();
-            player.currentTime = 0;
-            player.src = url;
-            
-            // Try to play immediately
-            player.play().catch(error => {
-                console.log("Autoplay blocked, showing toast");
-                // Show toast if blocked by browser policy
-                toast.classList.remove('hidden');
-                
-                // Add one-time click listener to toast to play and hide
-                toast.onclick = () => {
-                    player.play();
-                    toast.classList.add('hidden');
-                };
-                
-                // Also auto-hide toast after 10s
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 10000);
-            });
+            player.pause(); player.currentTime = 0; player.src = url; player.volume = 1.0; 
+            player.play().catch(() => { toast.classList.remove('hidden'); toast.onclick = () => { player.play(); toast.classList.add('hidden'); }; setTimeout(() => toast.classList.add('hidden'), 10000); });
         }
 
-        // --- ADMIN AUDIO BROADCAST ---
-        document.getElementById('admin-audio-input').onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('audio-file-name').textContent = file.name;
-            }
-        };
-
+        document.getElementById('admin-audio-input').onchange = (e) => { if (e.target.files[0]) document.getElementById('audio-file-name').textContent = e.target.files[0].name; };
         document.getElementById('btn-broadcast-audio').onclick = async () => {
-            const fileInput = document.getElementById('admin-audio-input');
-            const file = fileInput.files[0];
+            const file = document.getElementById('admin-audio-input').files[0];
+            if (!file) return alert("Select audio first!");
             const btn = document.getElementById('btn-broadcast-audio');
-            
-            if (!file) {
-                alert("Please select an audio file first!");
-                return;
-            }
-            
-            btn.innerText = "SENDING...";
-            btn.disabled = true;
-
+            btn.innerText = "SENDING..."; btn.disabled = true;
             try {
-                // 1. Upload to chat-uploads (reuse bucket)
                 const fileName = `broadcast_${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`; 
-                const { error: uploadError } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
-                
-                if (uploadError) throw uploadError;
-                
+                const { error: upErr } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
+                if (upErr) throw upErr;
                 const { data: { publicUrl } } = sbClient.storage.from('chat-uploads').getPublicUrl(fileName);
-                
-                // 2. Trigger Event
-                const { error: dbError } = await sbClient.from('audio_triggers').insert([{ 
-                    url: publicUrl,
-                    triggered_by: currentUser
-                }]);
-
-                if (dbError) throw dbError;
-                
+                await sbClient.from('audio_triggers').insert([{ url: publicUrl, triggered_by: currentUser }]);
                 alert("Audio Broadcast Sent!");
-                
-                // Reset UI
-                fileInput.value = '';
+                document.getElementById('admin-audio-input').value = '';
                 document.getElementById('audio-file-name').textContent = "Select MP3/WAV/OGG...";
-
-            } catch (err) {
-                alert("Broadcast Failed: " + err.message);
-            } finally {
-                btn.innerText = "PLAY";
-                btn.disabled = false;
-            }
+            } catch (err) { alert("Failed: " + err.message); } finally { btn.innerText = "PLAY"; btn.disabled = false; }
         };
 
         function applyKick() {
-            document.body.innerHTML = `
-                <div class="flex h-screen items-center justify-center bg-black text-red-600 flex-col gap-6 text-center">
-                    <div class="text-6xl">🥾</div>
-                    <div class="text-4xl font-black uppercase tracking-widest">KICKED</div>
-                    <div class="text-sm text-zinc-400 font-medium max-w-xs">You were kicked from the session.</div>
-                    <button onclick="location.reload()" class="bg-white text-black px-6 py-3 text-xs font-bold uppercase rounded-lg hover:bg-zinc-200 transition-colors">Rejoin</button>
-                </div>`;
+            document.body.innerHTML = `<div class="flex h-screen items-center justify-center bg-black text-red-600 flex-col gap-6 text-center"><div class="text-6xl">🥾</div><div class="text-4xl font-black uppercase">KICKED</div><button onclick="location.reload()" class="bg-white text-black px-6 py-3 rounded-lg font-bold">Rejoin</button></div>`;
             sbClient.removeAllChannels();
         }
 
         function applyBan() {
-            document.body.innerHTML = `
-                <div class="flex h-screen items-center justify-center bg-red-950 text-white flex-col gap-6 text-center">
-                    <div class="text-6xl">🚫</div>
-                    <div class="text-4xl font-black uppercase tracking-widest">BANNED</div>
-                    <div class="text-sm text-red-200 font-medium max-w-xs">You have been permanently banned from SLAP CHAT.</div>
-                </div>`;
+            document.body.innerHTML = `<div class="flex h-screen items-center justify-center bg-red-950 text-white flex-col gap-6 text-center"><div class="text-6xl">🚫</div><div class="text-4xl font-black uppercase">BANNED</div></div>`;
             sbClient.removeAllChannels();
         }
 
         async function sendMsg(text, user = currentUser, color = "text-brand", isBroadcast = false) {
             if (!sbClient) return;
             if (mutedUsers.has(user.toLowerCase())) return alert("You are muted.");
-            
-            const now = Date.now();
-            if (!isAdmin && (now - lastMessageTime < SPAM_COOLDOWN_MS)) {
-                return alert(`Wait ${SPAM_COOLDOWN_MS/1000}s.`);
-            }
-            lastMessageTime = now;
-            
+            if (Date.now() - lastMessageTime < SPAM_COOLDOWN_MS && !isAdmin) return alert("Slow down.");
+            lastMessageTime = Date.now();
             if (!isClean(text)) return alert("Restricted language.");
             
-            // Try Insert and Alert on Error
-            const { data, error } = await sbClient.from('messages').insert([{ 
-                text, user_name: user, color: isBroadcast ? color : themes[currentTheme].textClass, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo 
-            }]).select().single();
+            let finalColor = themes[currentTheme].textClass;
+            if (isAdmin || isThemeUser) finalColor = `admin-${currentAdminTheme}`; 
+            if (isBroadcast) finalColor = color; 
 
-            if (error) {
-                alert("Message Failed: " + error.message + "\n\n(Did you run the SQL Repair Script?)");
-                return;
-            }
-
+            const { data, error } = await sbClient.from('messages').insert([{ text, user_name: user, color: finalColor, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo }]).select().single();
             if (data) {
-                // Remove placeholder if exists
-                const placeholder = document.querySelector('#chat-feed .text-zinc-600');
-                if (placeholder) placeholder.parentElement.remove();
-                
+                const empty = document.getElementById('empty-state');
+                if (empty) empty.remove();
                 renderMessage(data, true);
             }
-            
             cancelReply();
         }
 
@@ -800,74 +730,38 @@
             document.getElementById('message-menu').classList.add('hidden'); 
         }
 
-        function cancelReply() {
-            replyingTo = null;
-            document.getElementById('reply-bar').classList.add('hidden');
-        }
+        function cancelReply() { replyingTo = null; document.getElementById('reply-bar').classList.add('hidden'); }
         document.getElementById('cancel-reply').onclick = cancelReply;
 
-        // --- ADMIN ACTIONS (With Error Feedback) ---
         window.toggleMute = async (targetUser) => {
-            if (!isAdmin || knownAdmins.has(targetUser)) return;
-            try {
-                if (mutedUsers.has(targetUser.toLowerCase())) {
-                    await sbClient.from('muted_users').delete().eq('user_name', targetUser);
-                    alert(`Unmuted ${targetUser}`);
-                } else {
-                    await sbClient.from('muted_users').insert([{ user_name: targetUser }]);
-                    alert(`Muted ${targetUser}`);
-                }
-            } catch (err) { alert("Error muting: " + err.message); }
+            if (!isAdmin) return;
+            if (mutedUsers.has(targetUser.toLowerCase())) await sbClient.from('muted_users').delete().eq('user_name', targetUser);
+            else await sbClient.from('muted_users').insert([{ user_name: targetUser }]);
             document.getElementById('message-menu').classList.add('hidden');
         };
 
         window.kickUser = async (targetUser) => {
-            if (!isAdmin || knownAdmins.has(targetUser)) return;
-            if (confirm(`Kick ${targetUser}?`)) {
-                const { error } = await sbClient.from('kicks').insert([{ user_name: targetUser }]);
-                if (error) {
-                    alert("Failed to Kick (Check Table): " + error.message);
-                } else {
-                    alert(`Kicked ${targetUser}`);
-                }
-            }
+            if (!isAdmin) return;
+            if (confirm(`Kick ${targetUser}?`)) await sbClient.from('kicks').insert([{ user_name: targetUser }]);
             document.getElementById('message-menu').classList.add('hidden');
         };
 
         window.banUser = async (targetUser) => {
-            if (!isAdmin || knownAdmins.has(targetUser)) return;
-            if (confirm(`PERMANENTLY BAN ${targetUser}?`)) {
-                const { error } = await sbClient.from('banned_users').insert([{ user_name: targetUser }]);
-                if (error) {
-                    alert("Failed to Ban (Check Table): " + error.message);
-                } else {
-                    alert(`BANNED ${targetUser}`);
-                }
-            }
+            if (!isAdmin) return;
+            if (confirm(`BAN ${targetUser}?`)) await sbClient.from('banned_users').insert([{ user_name: targetUser }]);
             document.getElementById('message-menu').classList.add('hidden');
         };
 
-        window.unbanUser = async (targetUser) => {
-            if (!isAdmin) return;
-            if (confirm(`Unban ${targetUser}?`)) {
-                await sbClient.from('banned_users').delete().eq('user_name', targetUser);
-                alert(`Unbanned ${targetUser}`);
-            }
-        };
+        window.unbanUser = async (targetUser) => { if (isAdmin && confirm(`Unban ${targetUser}?`)) await sbClient.from('banned_users').delete().eq('user_name', targetUser); };
 
-        // --- RENDER ---
         async function loadBots() {
             const { data } = await sbClient.from('bots').select('*');
-            if (data) {
-                cloudBots = data;
-                if (isAdmin) renderBotList();
-            }
+            if (data) { cloudBots = data; if (isAdmin) renderBotList(); }
         }
 
         function renderBotList() {
              const list = document.getElementById('active-bots-list');
-             if (!list) return;
-             list.innerHTML = '';
+             if (!list) return; list.innerHTML = '';
              cloudBots.forEach(bot => {
                 const item = document.createElement('div');
                 item.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-zinc-800 text-xs";
@@ -875,10 +769,7 @@
                 list.appendChild(item);
              });
         }
-
-        window.delBot = async (id) => {
-            if(isAdmin && sbClient) await sbClient.from('bots').delete().eq('id', id);
-        };
+        window.delBot = async (id) => { if(isAdmin) await sbClient.from('bots').delete().eq('id', id); };
 
         function renderFullFeed(msgs) {
             const feed = document.getElementById('chat-feed');
@@ -897,19 +788,16 @@
         }
 
         function renderMessage(data, isLive = true) {
-            if (!data || !data.id) return;
-            if (renderedMessageIds.has(data.id)) return; // Prevent Duplicates
+            if (!data || !data.id || renderedMessageIds.has(data.id)) return;
             renderedMessageIds.add(data.id);
 
             const feed = document.getElementById('chat-feed');
+            if(!feed) return; // Safety guard
+            
             const isSelf = data.user_name === currentUser;
             const div = document.createElement('div');
             div.id = `msg-${data.id}`;
-            
-            div.onclick = (e) => {
-                if(e.target.tagName === 'BUTTON') return;
-                if (e.target.closest('.chat-bubble')) openMessageMenu(e, data);
-            };
+            div.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && e.target.closest('.chat-bubble')) openMessageMenu(e, data); };
             div.className = `message-wrapper relative group`;
 
             if (data.is_broadcast) {
@@ -918,22 +806,43 @@
                 div.classList.add('flex', 'flex-col', isSelf ? 'items-end' : 'items-start', 'message-appear');
                 
                 let bubbleClass = isSelf 
-                    ? 'bg-brand text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-brand/20' 
-                    : 'bg-zinc-800 text-zinc-200 border border-zinc-700 shadow-sm rounded-r-2xl rounded-tl-2xl';
+                    ? 'bg-brand text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-brand/20 backdrop-blur-sm' 
+                    : 'bg-zinc-800/80 text-zinc-200 border border-zinc-700 shadow-sm rounded-r-2xl rounded-tl-2xl backdrop-blur-sm';
 
-                if (knownAdmins.has(data.user_name)) bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white'; 
-                bubbleClass += ' chat-bubble';
-
-                const avatarHTML = data.avatar 
-                    ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md">` 
-                    : '';
-
-                let replyHTML = '';
-                if (data.reply_to) {
-                    replyHTML = `<div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col"><span class="font-bold text-brand">${data.reply_to.user}</span><span class="truncate max-w-[150px] italic">${data.reply_to.text}</span></div>`;
+                // THEME FIX: Apply correct class based on stored color
+                let nameClass = data.color || 'text-zinc-400';
+                
+                // If it's an admin theme key (e.g. admin-fire), resolve it to CSS class
+                if (nameClass.startsWith('admin-')) {
+                     const themeKey = nameClass.replace('admin-', '');
+                     
+                     // 1. Resolve Text Style
+                     if (adminThemes[themeKey]) nameClass = adminThemes[themeKey].textClass;
+                     
+                     // 2. Resolve Bubble Style
+                     // Map theme key directly to bubble class (e.g., 'fire' -> 'fire-bubble')
+                     const bubbleMap = {
+                         'rainbow': 'rainbow-bubble rounded-xl shadow-lg text-white backdrop-blur-sm',
+                         'glitch': 'glitch-bubble rounded-xl shadow-lg backdrop-blur-sm',
+                         'ice': 'ice-bubble rounded-xl shadow-lg backdrop-blur-sm',
+                         'fire': 'fire-bubble rounded-xl shadow-lg backdrop-blur-sm',
+                         'blackhole': 'blackhole-bubble rounded-xl shadow-lg backdrop-blur-sm'
+                     };
+                     
+                     if (bubbleMap[themeKey]) {
+                         bubbleClass = bubbleMap[themeKey] + ' chat-bubble';
+                     }
+                } else if (knownAdmins.has(data.user_name)) {
+                     // Fallback for old admin messages
+                     bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white backdrop-blur-sm chat-bubble'; 
+                } else {
+                     bubbleClass += ' chat-bubble';
                 }
 
-                div.innerHTML = `<div class="flex items-end gap-3 mb-1">${!isSelf ? avatarHTML : ''}<div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}"><div class="flex items-center gap-2 mb-1 opacity-70">${!isSelf ? `<span class="text-xs font-bold ${data.color || 'text-zinc-400'}">${data.user_name}</span>` : ''}<span class="text-[10px] text-zinc-600 font-bold uppercase tracking-wide">${isLive ? "Just now" : "History"}</span>${isSelf ? `<span class="text-xs font-bold text-brand">You</span>` : ''}</div><div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">${replyHTML}${formatContent(data.text)}</div></div>${isSelf ? avatarHTML : ''}</div>`;
+                const avatarHTML = data.avatar ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md">` : '';
+                let replyHTML = data.reply_to ? `<div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col"><span class="font-bold text-brand">${data.reply_to.user}</span><span class="truncate max-w-[150px] italic">${data.reply_to.text}</span></div>` : '';
+
+                div.innerHTML = `<div class="flex items-end gap-3 mb-1">${!isSelf ? avatarHTML : ''}<div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}"><div class="flex items-center gap-2 mb-1 opacity-70">${!isSelf ? `<span class="text-xs font-bold ${nameClass}">${data.user_name}</span>` : ''}<span class="text-[10px] text-zinc-600 font-bold uppercase tracking-wide">${isLive ? "Just now" : "History"}</span>${isSelf ? `<span class="text-xs font-bold text-brand theme-text">You</span>` : ''}</div><div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">${replyHTML}${formatContent(data.text)}</div></div>${isSelf ? avatarHTML : ''}</div>`;
             }
             feed.appendChild(div);
             feed.scrollTop = feed.scrollHeight;
@@ -941,105 +850,67 @@
 
         function openMessageMenu(e, msgData) {
             const menu = document.getElementById('message-menu');
-            const replyBtn = document.getElementById('menu-reply-btn');
-            const muteBtn = document.getElementById('menu-mute-btn');
-            const kickBtn = document.getElementById('menu-kick-btn');
-            const banBtn = document.getElementById('menu-ban-btn');
-
+            document.getElementById('menu-reply-btn').onclick = () => setReply(msgData.id, msgData.user_name, msgData.text);
             menu.classList.remove('hidden');
-            replyBtn.onclick = () => setReply(msgData.id, msgData.user_name, msgData.text);
+            
+            const adminBtns = ['menu-mute-btn', 'menu-kick-btn', 'menu-ban-btn'];
+            adminBtns.forEach(id => document.getElementById(id).classList.add('hidden'));
 
             if (isAdmin && !knownAdmins.has(msgData.user_name)) {
-                muteBtn.classList.remove('hidden');
-                kickBtn.classList.remove('hidden');
-                banBtn.classList.remove('hidden');
-                
-                const isMuted = mutedUsers.has(msgData.user_name.toLowerCase());
-                muteBtn.innerHTML = isMuted 
-                    ? `<span class="text-green-500">Unmute</span>` 
-                    : `<span class="text-yellow-500">Mute</span>`;
-                
-                muteBtn.onclick = () => window.toggleMute(msgData.user_name);
-                kickBtn.onclick = () => window.kickUser(msgData.user_name);
-                banBtn.onclick = () => window.banUser(msgData.user_name);
-            } else {
-                muteBtn.classList.add('hidden');
-                kickBtn.classList.add('hidden');
-                banBtn.classList.add('hidden');
+                adminBtns.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.classList.remove('hidden');
+                    if (id === 'menu-mute-btn') el.onclick = () => window.toggleMute(msgData.user_name);
+                    if (id === 'menu-kick-btn') el.onclick = () => window.kickUser(msgData.user_name);
+                    if (id === 'menu-ban-btn') el.onclick = () => window.banUser(msgData.user_name);
+                });
             }
         }
 
         function renderAdminUserList() {
             const list = document.getElementById('online-users-list');
-            if(!list) return; // FIX: Ensure element exists
-            list.innerHTML = '';
+            if(!list) return; list.innerHTML = '';
             Object.keys(onlineUsers).forEach(userKey => {
                 const isMuted = mutedUsers.has(userKey.toLowerCase());
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-zinc-800 text-xs";
-                div.innerHTML = `<span class="text-zinc-300 font-bold">${userKey}</span><div class="flex gap-2"><button onclick="window.toggleMute('${userKey}')" class="${isMuted ? 'text-green-500' : 'text-yellow-500'} font-bold text-[10px]">${isMuted ? 'UNMUTE' : 'MUTE'}</button><button onclick="window.kickUser('${userKey}')" class="text-red-500 font-bold text-[10px]">KICK</button><button onclick="window.banUser('${userKey}')" class="text-red-700 font-black text-[10px]">BAN</button></div>`;
+                div.innerHTML = `<span class="text-zinc-300 font-bold">${userKey}</span><div class="flex gap-2"><button onclick="window.toggleMute('${userKey}')" class="text-yellow-500 font-bold">MUTE</button><button onclick="window.kickUser('${userKey}')" class="text-red-500 font-bold">KICK</button><button onclick="window.banUser('${userKey}')" class="text-red-700 font-black">BAN</button></div>`;
                 list.appendChild(div);
             });
         }
         
-        // --- PUBLIC USER LIST RENDERER ---
         function renderPublicUserList() {
             const list = document.getElementById('public-users-list');
             if(!list) return;
             list.innerHTML = '';
-            
-            // Convert onlineUsers object to array and sort alphabetically
             const users = Object.keys(onlineUsers).sort();
-            
-            if (users.length === 0) {
-                 list.innerHTML = `<p class="text-zinc-500 text-xs text-center py-4">It's quiet in here...</p>`;
-                 return;
-            }
+            if (users.length === 0) { list.innerHTML = `<p class="text-zinc-500 text-xs text-center py-4">It's quiet in here...</p>`; return; }
 
             users.forEach(userKey => {
-                // Get avatar and color from presence state
-                const sessions = onlineUsers[userKey];
-                const session = sessions && sessions[0] ? sessions[0] : {};
-                const avatarUrl = session.avatar || null;
-                const userColor = session.color || 'text-zinc-300';
+                const session = onlineUsers[userKey][0] || {};
+                const avatarUrl = session.avatar || `https://ui-avatars.com/api/?name=${userKey}&background=27272a&color=f97316&size=128&bold=true`;
                 const status = session.status || 'active';
+                let colorClass = session.color || 'text-zinc-300';
                 
-                // Determine display class based on admin rainbow status
-                const nameClass = (userColor === 'rainbow') ? 'text-rainbow font-black' : userColor + ' font-bold';
-                
-                // Status Indicator Logic
-                const statusColor = (status === 'idle') ? 'bg-amber-400' : 'bg-emerald-500';
-                const statusText = (status === 'idle') ? 'text-amber-400' : 'text-emerald-500';
-                const statusLabel = (status === 'idle') ? 'Idle' : 'Active';
+                if (colorClass.startsWith('admin-')) {
+                     const themeKey = colorClass.replace('admin-', '');
+                     if (adminThemes[themeKey]) colorClass = adminThemes[themeKey].textClass;
+                } else if (colorClass === 'rainbow') colorClass = 'text-rainbow font-black';
 
-                // Fallback Avatar
-                const fallbackAvatar = `https://ui-avatars.com/api/?name=${userKey}&background=27272a&color=f97316&size=128&bold=true`;
-                const finalAvatar = avatarUrl || fallbackAvatar;
+                const statusColor = (status === 'idle') ? 'bg-zinc-500' : 'bg-emerald-500';
+                const statusText = (status === 'idle') ? 'text-zinc-500' : 'text-emerald-500';
+                const statusLabel = (status === 'idle') ? 'Idle' : 'Active';
 
                 const item = document.createElement('div');
                 item.className = "flex items-center gap-3 p-3 bg-zinc-950/50 rounded-xl border border-zinc-800/50 hover:bg-zinc-900 transition-colors";
-                item.innerHTML = `
-                    <div class="relative">
-                        <img src="${finalAvatar}" class="w-10 h-10 rounded-lg object-cover bg-zinc-800 border border-zinc-700" onerror="this.src='${fallbackAvatar}'">
-                        <div class="absolute -bottom-1 -right-1 w-3 h-3 ${statusColor} rounded-full border-2 border-zinc-950 shadow-md shadow-emerald-500/20"></div>
-                    </div>
-                    <div>
-                        <p class="${nameClass} text-sm leading-tight">${userKey}</p>
-                        <p class="text-[10px] font-bold ${statusText} uppercase tracking-wider leading-tight">${statusLabel}</p>
-                    </div>
-                `;
+                item.innerHTML = `<div class="relative"><img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover bg-zinc-800 border border-zinc-700"><div class="absolute -bottom-1 -right-1 w-3 h-3 ${statusColor} rounded-full border-2 border-zinc-950 shadow-md shadow-emerald-500/20"></div></div><div><p class="${colorClass} text-sm font-bold leading-tight">${userKey}</p><p class="text-[10px] font-bold ${statusText} uppercase tracking-wider leading-tight">${statusLabel}</p></div>`;
                 list.appendChild(item);
             });
         }
 
         function renderBannedUserList() {
             const list = document.getElementById('banned-users-list');
-            if(!list) return; // FIX: Ensure element exists
-            list.innerHTML = '';
-            if (bannedUsers.size === 0) {
-                list.innerHTML = '<div class="text-zinc-600 text-xs italic">No banned users</div>';
-                return;
-            }
+            if(!list) return; list.innerHTML = '';
             bannedUsers.forEach(userKey => {
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center p-2 bg-zinc-900 rounded border border-red-900/30 text-xs";
@@ -1053,24 +924,18 @@
         document.getElementById('chat-file-input').onchange = async (e) => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
-                try {
-                    const fileName = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${file.name.split('.').pop()}`;
-                    const { error } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
-                    if (error) throw error;
+                const fileName = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${file.name.split('.').pop()}`;
+                const { error } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
+                if (!error) {
                     const { data: { publicUrl } } = sbClient.storage.from('chat-uploads').getPublicUrl(fileName);
                     await sendMsg(publicUrl);
-                } catch (err) { alert("Upload error: " + err.message); }
+                }
             }
         };
 
-        // --- NEW: CLOUD ADMIN CHECK ---
         document.getElementById('name-input').oninput = (e) => {
-            // Check if typed name matches any known admin
-            if (knownAdmins.has(e.target.value.trim())) {
-                document.getElementById('password-area').classList.remove('hidden');
-            } else {
-                document.getElementById('password-area').classList.add('hidden');
-            }
+            if (knownAdmins.has(e.target.value.trim())) document.getElementById('password-area').classList.remove('hidden');
+            else document.getElementById('password-area').classList.add('hidden');
         };
 
         document.getElementById('save-name').onclick = async () => {
@@ -1078,80 +943,67 @@
             const pass = document.getElementById('admin-password').value;
             const fileInput = document.getElementById('avatar-file-input');
             const inputField = document.getElementById('message-input');
-            const btn = document.getElementById('save-name');
             
             if (!isClean(name)) return alert("Restricted name.");
-
             if (fileInput.files.length > 0) {
-                try {
-                    const fileName = `${Date.now()}.${fileInput.files[0].name.split('.').pop()}`;
-                    await sbClient.storage.from('avatars').upload(fileName, fileInput.files[0]);
-                    const { data: { publicUrl } } = sbClient.storage.from('avatars').getPublicUrl(fileName);
-                    currentAvatar = publicUrl;
-                    localStorage.setItem('ekaf_avatar', currentAvatar);
-                } catch (err) { return alert("Upload error: " + err.message); }
+                const fileName = `${Date.now()}.${fileInput.files[0].name.split('.').pop()}`;
+                await sbClient.storage.from('avatars').upload(fileName, fileInput.files[0]);
+                const { data: { publicUrl } } = sbClient.storage.from('avatars').getPublicUrl(fileName);
+                currentAvatar = publicUrl;
+                localStorage.setItem('ekaf_avatar', currentAvatar);
             }
 
-            btn.innerText = "Verifying...";
-            btn.disabled = true;
+            // Check if full admin
+            const { data: adminRecord } = await sbClient.from('admins').select('password').eq('username', name).single();
+            let isFullAdmin = false;
+            let isValidThemeUser = false;
 
-            // Check if user is an Admin in DB
-            const { data: adminRecord } = await sbClient
-                .from('admins')
-                .select('password')
-                .eq('username', name)
-                .single();
+            if (adminRecord && pass === adminRecord.password) {
+                 isFullAdmin = true;
+            } else if (!adminRecord) {
+                 // Check if theme user
+                 const { data: themeUser } = await sbClient.from('theme_users').select('password').eq('username', name).single();
+                 if (themeUser && pass === themeUser.password) {
+                     isValidThemeUser = true;
+                 }
+            }
 
-            if (adminRecord) {
-                // Is an Admin
-                if (pass === adminRecord.password) {
-                    isAdmin = true;
-                    currentUser = name;
-                    
-                    document.getElementById('dev-console').classList.remove('hidden');
-                    document.getElementById('theme-selector-area').classList.add('hidden');
-                    inputField.classList.add('rainbow-mode'); 
-                    startRainbowCycle(); 
-                    
-                    finalizeLogin();
-                } else {
-                    alert("Incorrect Admin Password.");
-                    isAdmin = false;
-                    btn.innerText = "Save Profile";
-                    btn.disabled = false;
-                    return; // Stop login
-                }
+            if (isFullAdmin) {
+                isAdmin = true; isThemeUser = true; currentUser = name;
+                document.getElementById('dev-console').classList.remove('hidden');
+                document.getElementById('theme-selector-area').classList.add('hidden');
+                document.getElementById('admin-theme-selector-area').classList.remove('hidden');
+                inputField.classList.add('rainbow-mode'); 
+                setAdminTheme(currentAdminTheme); 
+                finalizeLogin();
+            } else if (isValidThemeUser) {
+                isAdmin = false; isThemeUser = true; currentUser = name;
+                document.getElementById('dev-console').classList.add('hidden'); // Hide admin tools
+                document.getElementById('theme-selector-area').classList.add('hidden');
+                document.getElementById('admin-theme-selector-area').classList.remove('hidden'); // Show themes
+                inputField.classList.add('rainbow-mode'); 
+                setAdminTheme(currentAdminTheme); 
+                finalizeLogin();
             } else {
-                // Regular User
-                isAdmin = false;
-                currentUser = name || generateAnonName();
+                if (adminRecord || (pass && pass.length > 0)) alert("Incorrect Password.");
                 
+                isAdmin = false; isThemeUser = false; currentUser = name || generateAnonName();
                 document.getElementById('dev-console').classList.add('hidden');
                 document.getElementById('theme-selector-area').classList.remove('hidden');
+                document.getElementById('admin-theme-selector-area').classList.add('hidden');
                 inputField.classList.remove('rainbow-mode');
                 stopRainbowCycle(); 
-                
                 finalizeLogin();
             }
-            
-            // Reset button state just in case
-            btn.innerText = "Save Profile";
-            btn.disabled = false;
         };
 
         function finalizeLogin() {
             document.getElementById('display-name').textContent = currentUser;
             document.getElementById('settings-modal').classList.add('hidden');
             localStorage.setItem('ekaf_username', currentUser);
-            updateHeaderProfile(); trackPresence(); 
+            updateHeaderProfile(); trackPresence('active'); 
             if(isAdmin) { renderBotList(); renderBannedUserList(); }
         }
-        
-        // Open Active Users Modal
-        document.getElementById('online-badge').onclick = () => {
-             document.getElementById('users-modal').classList.remove('hidden');
-             renderPublicUserList(); // Ensure fresh render
-        };
 
         document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) { await sbClient.from('messages').delete().gt('id', 0); location.reload(); } };
         document.getElementById('send-broadcast').onclick = () => { const inp = document.getElementById('broadcast-input'); if (inp.value.trim()) sendMsg(inp.value.trim(), "ADMIN", "text-red-600", true); };
@@ -1163,6 +1015,7 @@
         document.getElementById('bot-toggle').onchange = async () => { if (isAdmin) await sbClient.from('settings').update({ value: document.getElementById('bot-toggle').checked }).eq('key', 'bots_enabled'); };
         document.getElementById('open-settings').onclick = () => document.getElementById('settings-modal').classList.remove('hidden');
         document.getElementById('close-modal').onclick = () => document.getElementById('settings-modal').classList.add('hidden');
+        document.getElementById('online-badge').onclick = () => { document.getElementById('users-modal').classList.remove('hidden'); renderPublicUserList(); };
 
         setInterval(() => {
             if (!botsEnabled || !cloudBots.length) return;
@@ -1170,7 +1023,7 @@
                 const b = cloudBots[Math.floor(Math.random() * cloudBots.length)];
                 sendMsg(b.messages[Math.floor(Math.random() * b.messages.length)], b.name, b.color);
             }
-        }, 10000);
+        }, 12000);
 
         init();
     </script>
