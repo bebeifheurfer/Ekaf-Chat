@@ -22,11 +22,13 @@
                         'glitch': 'glitch 1s linear infinite',
                         'fire': 'fire 2s ease-in-out infinite alternate',
                         'spin-slow': 'spin 20s linear infinite',
+                        'spin-slower': 'spin 60s linear infinite',
                         'scanline': 'scanline 8s linear infinite',
-                        /* Restored Glitch Animations */
                         'scanline-scroll': 'scanline-scroll 4s linear infinite',
                         'grid-scroll': 'grid-scroll 20s linear infinite',
                         'crt-flicker': 'crt-flicker 0.1s infinite',
+                        'ice-drift': 'ice-drift 20s linear infinite',
+                        'debris-rise': 'debris-rise 15s linear infinite',
                     },
                     keyframes: {
                         glitch: {
@@ -38,7 +40,6 @@
                             '0%': { textShadow: '0 0 10px #ef4444, 0 0 20px #f97316' },
                             '100%': { textShadow: '0 0 5px #f97316, 0 0 10px #eab308' }
                         },
-                        /* Restored Glitch Keyframes */
                         'scanline-scroll': {
                             '0%': { backgroundPosition: '0% 0%' },
                             '100%': { backgroundPosition: '0% 100%' }
@@ -51,6 +52,14 @@
                             '0%': { opacity: '0.98' },
                             '50%': { opacity: '1' },
                             '100%': { opacity: '0.99' }
+                        },
+                        'ice-drift': {
+                            '0%': { backgroundPosition: '0% 0%' },
+                            '100%': { backgroundPosition: '100% 100%' }
+                        },
+                        'debris-rise': {
+                            '0%': { backgroundPositionY: '100%' },
+                            '100%': { backgroundPositionY: '-20%' }
                         }
                     }
                 }
@@ -59,11 +68,13 @@
     </script>
 
     <style>
+        /* Import Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); /* Glitch */
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap'); /* Fire */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap'); /* Black Hole */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap'); /* Ice */
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap'); /* Nullscapes */
         
         :root {
             --brand-main: #f97316;
@@ -80,50 +91,65 @@
         }
         
         /* --- ADMIN THEME BACKGROUNDS --- */
+
+        /* NULLSCAPES THEME (GD Style) */
+        body.theme-nullscapes {
+            background-color: #000;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #ffffff 0%, #cbd5e1 15%, #64748b 30%, #0f172a 60%, #000000 100%),
+                repeating-conic-gradient(from 0deg at 50% 0%, transparent 0deg, transparent 5deg, rgba(255,255,255,0.02) 6deg, transparent 7deg);
+            background-size: 100% 100%;
+            background-attachment: fixed;
+            position: relative;
+        }
+        body.theme-nullscapes::before {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
+            background: repeating-linear-gradient(110deg, #020617 0%, #020617 5%, transparent 5%, transparent 10%), repeating-linear-gradient(70deg, #020617 0%, #020617 5%, transparent 5%, transparent 10%);
+            background-image: 
+                linear-gradient(to top right, transparent 49%, #000 50%), linear-gradient(to top left, transparent 49%, #000 50%),
+                linear-gradient(to top right, transparent 49%, #020617 50%), linear-gradient(to top left, transparent 49%, #020617 50%),
+                linear-gradient(to top right, transparent 49%, #1e293b 50%), linear-gradient(to top left, transparent 49%, #1e293b 50%);
+            background-size: 60px 100%, 60px 100%, 90px 80%, 90px 80%, 150px 60%, 150px 60%;
+            background-position: 0 bottom, 30px bottom, 10px bottom, 55px bottom, 20px bottom, 95px bottom;
+            background-repeat: repeat-x; z-index: -1; filter: drop-shadow(0 -5px 10px rgba(0,0,0,0.8));
+        }
+        body.theme-nullscapes::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(45deg, transparent 45%, #334155 45%, #334155 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #334155 45%, #334155 55%, transparent 55%);
+            background-size: 40px 40px; background-position: 0 0; opacity: 0.2;
+            mask-image: linear-gradient(to top, black, transparent); animation: debris-rise 10s linear infinite; pointer-events: none; z-index: -2;
+        }
+
+        /* ICE THEME */
         body.theme-ice { 
-            background: linear-gradient(to bottom, #0f172a, #083344, #155e75); 
-            background-size: 100% 400%;
-            animation: bg-shift 15s ease infinite;
+            background-color: #000; background-image: radial-gradient(circle at 50% 100%, #0e7490 0%, #083344 40%, #000000 100%);
+            position: relative; overflow: hidden;
+        }
+        body.theme-ice::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background-image: repeating-linear-gradient(45deg, rgba(34, 211, 238, 0.03) 0px, rgba(34, 211, 238, 0.03) 2px, transparent 2px, transparent 20px), repeating-linear-gradient(-45deg, rgba(34, 211, 238, 0.03) 0px, rgba(34, 211, 238, 0.03) 2px, transparent 2px, transparent 40px);
+            animation: spin-slower 60s linear infinite; pointer-events: none; z-index: -1;
         }
 
         /* FIRE THEME */
-        body.theme-fire { 
-            background: linear-gradient(to top, #450a0a, #2b0606, #09090b); 
-            position: relative;
-        }
+        body.theme-fire { background: linear-gradient(to top, #450a0a, #2b0606, #09090b); position: relative; }
         body.theme-fire::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(3px 3px at 20px 30px, rgba(251, 191, 36, 0.6), rgba(0,0,0,0)),
-                radial-gradient(3px 3px at 40px 70px, rgba(249, 115, 22, 0.6), rgba(0,0,0,0)),
-                radial-gradient(3px 3px at 50px 160px, rgba(239, 68, 68, 0.6), rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.4), rgba(0,0,0,0));
-            background-repeat: repeat; background-size: 200px 200px;
-            animation: embers 4s linear infinite; z-index: -1; pointer-events: none;
+            background-image: radial-gradient(3px 3px at 20px 30px, rgba(251, 191, 36, 0.6), rgba(0,0,0,0)), radial-gradient(3px 3px at 40px 70px, rgba(249, 115, 22, 0.6), rgba(0,0,0,0)), radial-gradient(3px 3px at 50px 160px, rgba(239, 68, 68, 0.6), rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.4), rgba(0,0,0,0));
+            background-repeat: repeat; background-size: 200px 200px; animation: embers 4s linear infinite; z-index: -1; pointer-events: none;
         }
-        body.theme-fire::after {
-             content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
-             background: linear-gradient(to top, rgba(220, 38, 38, 0.15), transparent);
-             z-index: -2; pointer-events: none;
-        }
-        @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
+        body.theme-fire::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%; background: linear-gradient(to top, rgba(220, 38, 38, 0.15), transparent); z-index: -2; pointer-events: none; }
         
-        /* GLITCH THEME (FIXED & RESTORED) */
+        /* GLITCH THEME */
         body.theme-glitch { 
             background-color: #050505;
-            background-image: 
-                linear-gradient(rgba(34, 197, 94, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(34, 197, 94, 0.15) 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: center top;
-            animation: crt-flicker 0.1s infinite, grid-scroll 20s linear infinite;
+            background-image: linear-gradient(rgba(34, 197, 94, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 197, 94, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px; background-position: center top; animation: crt-flicker 0.1s infinite, grid-scroll 20s linear infinite;
         }
         body.theme-glitch::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, transparent 50%, rgba(34, 197, 94, 0.1) 51%, transparent 55%);
-            background-size: 100% 8px;
-            animation: scanline-scroll 4s linear infinite;
-            pointer-events: none; z-index: -1;
+            background-size: 100% 8px; animation: scanline-scroll 4s linear infinite; pointer-events: none; z-index: -1;
         }
         body.theme-glitch::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -133,31 +159,19 @@
 
         /* BLACK HOLE THEME */
         body.theme-blackhole { 
-            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-            background-image: 
-                radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 50px 160px, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0));
+            background-color: #000000;
+            background-image: radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 50px 160px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0));
             background-repeat: repeat; background-size: 200px 200px; overflow: hidden;
         }
         body.theme-blackhole::before {
-            content: ''; position: absolute; top: 50%; left: 50%; width: 700px; height: 700px;
-            transform: translate(-50%, -50%);
-            background: radial-gradient(circle, #000 30%, transparent 35%), 
-                        conic-gradient(from 0deg, #2e1065, #7c3aed, #fff, #7c3aed, #2e1065);
-            border-radius: 50%; filter: blur(30px); animation: spin-slow 15s linear infinite;
-            opacity: 0.8; z-index: -1; box-shadow: 0 0 150px #5b21b6;
+            content: ''; position: absolute; top: 50%; left: 50%; width: 700px; height: 700px; transform: translate(-50%, -50%);
+            background: radial-gradient(circle, #000 30%, transparent 35%), conic-gradient(from 0deg, #2e1065, #7c3aed, #000, #7c3aed, #2e1065);
+            border-radius: 50%; filter: blur(30px); animation: spin-slow 15s linear infinite; opacity: 0.9; z-index: -1; box-shadow: 0 0 150px #5b21b6;
         }
         body.theme-blackhole::after {
-            content: ''; position: absolute; top: 50%; left: 50%; width: 280px; height: 280px;
-            transform: translate(-50%, -50%); background: #000; border-radius: 50%;
-            z-index: -1; box-shadow: 0 0 50px #000, inset 0 0 60px #4c1d95;
-            border: 1px solid rgba(124, 58, 237, 0.3);
+            content: ''; position: absolute; top: 50%; left: 50%; width: 280px; height: 280px; transform: translate(-50%, -50%);
+            background: #000; border-radius: 50%; z-index: -1; box-shadow: 0 0 50px #000, inset 0 0 60px #4c1d95; border: 1px solid rgba(124, 58, 237, 0.3);
         }
-
-        @keyframes bg-shift { 0% { background-position: 0% 0%; } 50% { background-position: 0% 100%; } 100% { background-position: 0% 0%; } }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
@@ -182,6 +196,8 @@
         .text-ice { color: #a5f3fc !important; font-family: 'Cinzel', serif; text-shadow: 0 0 8px #0891b2, 0 0 15px #22d3ee; }
         .text-fire { font-family: 'Creepster', cursive; background: linear-gradient(to top, #ef4444, #fcd34d); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 -2px 10px rgba(249, 115, 22, 0.4); font-size: 1.1em; letter-spacing: 1px; }
         .text-void { color: #ddd6fe !important; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 5px #7c3aed, 0 0 10px #4c1d95; letter-spacing: -0.5px; }
+        /* Nullscapes Text */
+        .text-nullscapes { color: #f8fafc !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
 
         .rainbow-mode { animation: rainbow-border 4s linear infinite; border-width: 2px !important; background-color: #18181b !important; color: #fff !important; }
         .rainbow-bubble { animation: rainbow-bg 4s linear infinite; color: white !important; border: none !important; font-weight: 700; }
@@ -191,6 +207,8 @@
         .ice-bubble { background: linear-gradient(135deg, rgba(8, 51, 68, 0.9), rgba(21, 94, 117, 0.9)); border: 1px solid #22d3ee; box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); color: #a5f3fc !important; font-family: 'Cinzel', serif; font-weight: bold; }
         .fire-bubble { background: linear-gradient(to top, #450a0a, #7f1d1d); border: 1px solid #f97316; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); color: #fbbf24 !important; font-family: 'Creepster', cursive; font-size: 1.1em; letter-spacing: 1px; }
         .blackhole-bubble { background: radial-gradient(circle, #000 0%, #2e1065 120%); border: 1px solid #7c3aed; box-shadow: 0 0 15px rgba(76, 29, 149, 0.6); color: #ddd6fe !important; font-family: 'Orbitron', sans-serif; letter-spacing: -0.5px; }
+        /* Nullscapes Bubble */
+        .nullscapes-bubble { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); color: #f1f5f9 !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; clip-path: polygon(5% 0%, 100% 0%, 100% 85%, 95% 100%, 0% 100%); border-radius: 0 !important; }
 
         /* UI Elements */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
@@ -211,6 +229,9 @@
         
         .audio-toast { animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes bounceIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
+        @keyframes ice-drift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+        @keyframes debris-rise { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; } }
 
         /* Dynamic Theme Classes */
         .theme-border { border-color: var(--brand-main) !important; }
@@ -225,6 +246,7 @@
 <body class="bg-zinc-950 text-zinc-200 flex flex-col h-screen">
 
     <audio id="global-audio-player" class="hidden" preload="auto"></audio>
+    <audio id="theme-audio-player" class="hidden" loop preload="auto"></audio>
 
     <div id="audio-toast" class="fixed top-20 right-6 z-50 hidden audio-toast cursor-pointer bg-brand text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border-2 border-white/20">
         <div class="text-2xl">🔊</div>
@@ -356,6 +378,13 @@
                         <div class="color-btn bg-cyan-500 shadow-cyan-500/50" onclick="setAdminTheme('ice')" title="Ice"></div>
                         <div class="color-btn bg-orange-600 shadow-orange-600/50" onclick="setAdminTheme('fire')" title="Fire"></div>
                         <div class="color-btn bg-violet-950 border-violet-500" onclick="setAdminTheme('blackhole')" title="Black Hole"></div>
+                        <div class="color-btn bg-slate-800 border-white border" onclick="setAdminTheme('nullscapes')" title="NULLSCAPES"></div>
+                    </div>
+                    
+                    <!-- New Audio Controls -->
+                    <div class="mt-4 flex items-center justify-between bg-zinc-900 p-2 rounded-lg border border-zinc-700">
+                        <span class="text-xs font-bold text-zinc-400 uppercase">Theme Music Volume</span>
+                        <input type="range" id="theme-volume" min="0" max="1" step="0.1" value="0.3" class="w-24 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
                     </div>
                 </div>
 
@@ -369,7 +398,7 @@
                     <input type="file" id="avatar-file-input" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-brand file:text-white hover:file:bg-brand-hover cursor-pointer bg-zinc-800 rounded-lg">
                 </div>
                 <div id="password-area" class="hidden mb-4">
-                    <p class="text-xs font-bold text-red-500 mb-1">ADMIN ACCESS</p>
+                    <p class="text-xs font-bold text-red-500 mb-1">PASSWORD</p>
                     <input type="password" id="admin-password" placeholder="Password" class="w-full bg-zinc-800 border border-red-900/50 p-3 rounded-lg outline-none focus:border-red-500 text-white">
                 </div>
                 <button id="save-name" class="w-full bg-brand text-white py-3 rounded-lg font-bold uppercase tracking-wide hover:bg-brand-hover transition-colors shadow-lg shadow-brand/20 theme-bg">Save Profile</button>
@@ -479,11 +508,12 @@
         };
 
         const adminThemes = {
-            rainbow: { textClass: 'text-rainbow', bgClass: '' },
-            glitch: { textClass: 'text-glitch', bgClass: 'theme-glitch' },
-            ice: { textClass: 'text-ice', bgClass: 'theme-ice' },
-            fire: { textClass: 'text-fire', bgClass: 'theme-fire' },
-            blackhole: { textClass: 'text-void', bgClass: 'theme-blackhole' }
+            rainbow: { textClass: 'text-rainbow', bgClass: '', audioUrl: '' }, 
+            glitch: { textClass: 'text-glitch', bgClass: 'theme-glitch', audioUrl: '' },
+            ice: { textClass: 'text-ice', bgClass: 'theme-ice', audioUrl: '' },
+            fire: { textClass: 'text-fire', bgClass: 'theme-fire', audioUrl: '' },
+            blackhole: { textClass: 'text-void', bgClass: 'theme-blackhole', audioUrl: '' },
+            nullscapes: { textClass: 'text-nullscapes', bgClass: 'theme-nullscapes', audioUrl: '' }
         };
 
         function isClean(text) {
@@ -494,6 +524,17 @@
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
         const onlineBadge = document.getElementById('online-badge');
+        const themeAudioPlayer = document.getElementById('theme-audio-player');
+        const themeVolumeSlider = document.getElementById('theme-volume');
+
+        // Volume Control Logic
+        themeVolumeSlider.oninput = (e) => {
+            themeAudioPlayer.volume = e.target.value;
+            localStorage.setItem('ekaf_theme_volume', e.target.value);
+        };
+        // Restore volume on load
+        themeAudioPlayer.volume = localStorage.getItem('ekaf_theme_volume') || 0.3;
+        themeVolumeSlider.value = themeAudioPlayer.volume;
 
         window.setTheme = (colorName) => {
             const t = themes[colorName];
@@ -504,16 +545,31 @@
             localStorage.setItem('ekaf_theme', colorName);
             currentTheme = colorName;
             
+            // Stop theme music if switching to normal theme
+            if (!isAdmin && !isThemeUser) {
+                themeAudioPlayer.pause();
+                themeAudioPlayer.currentTime = 0;
+            }
+            
             if (!isAdmin && !isThemeUser && presenceChannel) trackPresence('active');
         };
 
         window.setAdminTheme = (themeName) => {
             if (!adminThemes[themeName]) return;
-            document.body.classList.remove('theme-glitch', 'theme-ice', 'theme-fire', 'theme-blackhole');
+            document.body.classList.remove('theme-glitch', 'theme-ice', 'theme-fire', 'theme-blackhole', 'theme-nullscapes');
             const newClass = adminThemes[themeName].bgClass;
             if (newClass) document.body.classList.add(newClass);
             currentAdminTheme = themeName;
             localStorage.setItem('ekaf_admin_theme', themeName);
+            
+            // Audio Logic
+            const audioUrl = adminThemes[themeName].audioUrl;
+            if (audioUrl) {
+                themeAudioPlayer.src = audioUrl;
+                themeAudioPlayer.play().catch(e => console.log("Theme Audio Autoplay blocked - waiting for interaction"));
+            } else {
+                themeAudioPlayer.pause();
+            }
             
             if (themeName === 'rainbow') startRainbowCycle();
             else {
@@ -522,6 +578,7 @@
                 if (themeName === 'ice') document.documentElement.style.setProperty('--brand-main', '#22d3ee');
                 if (themeName === 'fire') document.documentElement.style.setProperty('--brand-main', '#f97316');
                 if (themeName === 'blackhole') document.documentElement.style.setProperty('--brand-main', '#a78bfa');
+                if (themeName === 'nullscapes') document.documentElement.style.setProperty('--brand-main', '#94a3b8');
             }
             if ((isAdmin || isThemeUser) && presenceChannel) trackPresence('active');
         };
@@ -840,37 +897,40 @@
                 // THEME FIX: Apply correct class based on stored color
                 let nameClass = data.color || 'text-zinc-400';
                 
-                // If it's an admin theme key (e.g. admin-fire), resolve it to CSS class
+                // Determine Bubble Style
                 if (nameClass.startsWith('admin-')) {
                      const themeKey = nameClass.replace('admin-', '');
                      
-                     // 1. Resolve Text Style
                      if (adminThemes[themeKey]) nameClass = adminThemes[themeKey].textClass;
                      
-                     // 2. Resolve Bubble Style
-                     // Map theme key directly to bubble class (e.g., 'fire' -> 'fire-bubble')
                      const bubbleMap = {
                          'rainbow': 'rainbow-bubble rounded-xl shadow-lg text-white backdrop-blur-sm',
                          'glitch': 'glitch-bubble rounded-xl shadow-lg backdrop-blur-sm',
                          'ice': 'ice-bubble rounded-xl shadow-lg backdrop-blur-sm',
                          'fire': 'fire-bubble rounded-xl shadow-lg backdrop-blur-sm',
-                         'blackhole': 'blackhole-bubble rounded-xl shadow-lg backdrop-blur-sm'
+                         'blackhole': 'blackhole-bubble rounded-xl shadow-lg backdrop-blur-sm',
+                         'nullscapes': 'nullscapes-bubble rounded-xl shadow-lg backdrop-blur-sm'
                      };
                      
-                     if (bubbleMap[themeKey]) {
-                         bubbleClass = bubbleMap[themeKey] + ' chat-bubble';
-                     }
+                     if (bubbleMap[themeKey]) bubbleClass = bubbleMap[themeKey] + ' chat-bubble';
                 } else if (knownAdmins.has(data.user_name)) {
-                     // Fallback for old admin messages
                      bubbleClass = 'rainbow-bubble rounded-xl shadow-lg text-white backdrop-blur-sm chat-bubble'; 
                 } else {
                      bubbleClass += ' chat-bubble';
                 }
 
+                // Add Badges based on known lists (populated on init)
+                let badgeHTML = '';
+                if (knownAdmins.has(data.user_name)) {
+                    badgeHTML = `<span class="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded ml-2 uppercase tracking-wide shadow-red-500/50 shadow-sm">[ADMIN]</span>`;
+                } else if (knownVips.has(data.user_name)) {
+                    badgeHTML = `<span class="bg-amber-400 text-black text-[9px] font-black px-1.5 py-0.5 rounded ml-2 uppercase tracking-wide shadow-amber-400/50 shadow-sm">[VIP]</span>`;
+                }
+
                 const avatarHTML = data.avatar ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md">` : '';
                 let replyHTML = data.reply_to ? `<div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col"><span class="font-bold text-brand">${data.reply_to.user}</span><span class="truncate max-w-[150px] italic">${data.reply_to.text}</span></div>` : '';
 
-                div.innerHTML = `<div class="flex items-end gap-3 mb-1">${!isSelf ? avatarHTML : ''}<div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}"><div class="flex items-center gap-2 mb-1 opacity-70">${!isSelf ? `<span class="text-xs font-bold ${nameClass}">${data.user_name}</span>` : ''}<span class="text-[10px] text-zinc-600 font-bold uppercase tracking-wide">${isLive ? "Just now" : "History"}</span>${isSelf ? `<span class="text-xs font-bold text-brand theme-text">You</span>` : ''}</div><div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">${replyHTML}${formatContent(data.text)}</div></div>${isSelf ? avatarHTML : ''}</div>`;
+                div.innerHTML = `<div class="flex items-end gap-3 mb-1">${!isSelf ? avatarHTML : ''}<div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}"><div class="flex items-center gap-1 mb-1 opacity-90">${!isSelf ? `<span class="text-xs font-bold ${nameClass}">${data.user_name}</span>${badgeHTML}` : ''}<span class="text-[10px] text-zinc-500 font-medium ml-2 uppercase tracking-wide">${isLive ? "Just now" : "History"}</span>${isSelf ? `<span class="text-xs font-bold text-brand theme-text ml-2">You</span>${badgeHTML}` : ''}</div><div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">${replyHTML}${formatContent(data.text)}</div></div>${isSelf ? avatarHTML : ''}</div>`;
             }
             feed.appendChild(div);
             feed.scrollTop = feed.scrollHeight;
@@ -920,6 +980,14 @@
                 const status = session.status || 'active';
                 let colorClass = session.color || 'text-zinc-300';
                 
+                // Badges in User List
+                let badgeHTML = '';
+                if (knownAdmins.has(userKey)) {
+                    badgeHTML = `<span class="bg-red-600 text-white text-[8px] font-black px-1 py-0.5 rounded ml-1 uppercase tracking-wide">[ADMIN]</span>`;
+                } else if (knownVips.has(userKey)) {
+                    badgeHTML = `<span class="bg-amber-400 text-black text-[8px] font-black px-1 py-0.5 rounded ml-1 uppercase tracking-wide">[VIP]</span>`;
+                }
+                
                 if (colorClass.startsWith('admin-')) {
                      const themeKey = colorClass.replace('admin-', '');
                      if (adminThemes[themeKey]) colorClass = adminThemes[themeKey].textClass;
@@ -931,7 +999,7 @@
 
                 const item = document.createElement('div');
                 item.className = "flex items-center gap-3 p-3 bg-zinc-950/50 rounded-xl border border-zinc-800/50 hover:bg-zinc-900 transition-colors";
-                item.innerHTML = `<div class="relative"><img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover bg-zinc-800 border border-zinc-700"><div class="absolute -bottom-1 -right-1 w-3 h-3 ${statusColor} rounded-full border-2 border-zinc-950 shadow-md shadow-emerald-500/20"></div></div><div><p class="${colorClass} text-sm font-bold leading-tight">${userKey}</p><p class="text-[10px] font-bold ${statusText} uppercase tracking-wider leading-tight">${statusLabel}</p></div>`;
+                item.innerHTML = `<div class="relative"><img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover bg-zinc-800 border border-zinc-700"><div class="absolute -bottom-1 -right-1 w-3 h-3 ${statusColor} rounded-full border-2 border-zinc-950 shadow-md shadow-emerald-500/20"></div></div><div><p class="${colorClass} text-sm font-bold leading-tight flex items-center">${userKey} ${badgeHTML}</p><p class="text-[10px] font-bold ${statusText} uppercase tracking-wider leading-tight">${statusLabel}</p></div>`;
                 list.appendChild(item);
             });
         }
