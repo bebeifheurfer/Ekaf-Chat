@@ -92,7 +92,7 @@
         
         /* --- ADMIN THEME BACKGROUNDS --- */
 
-        /* NULLSCAPES THEME (GD Style) */
+        /* NULLSCAPES THEME (GD Style - No Spin) */
         body.theme-nullscapes {
             background-color: #000;
             background-image: 
@@ -117,7 +117,9 @@
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: linear-gradient(45deg, transparent 45%, #334155 45%, #334155 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #334155 45%, #334155 55%, transparent 55%);
             background-size: 40px 40px; background-position: 0 0; opacity: 0.2;
-            mask-image: linear-gradient(to top, black, transparent); animation: debris-rise 10s linear infinite; pointer-events: none; z-index: -2;
+            mask-image: linear-gradient(to top, black, transparent); 
+            animation: debris-rise 10s linear infinite; /* Verified vertical rise */
+            pointer-events: none; z-index: -2;
         }
 
         /* ICE THEME */
@@ -208,7 +210,7 @@
         .fire-bubble { background: linear-gradient(to top, #450a0a, #7f1d1d); border: 1px solid #f97316; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); color: #fbbf24 !important; font-family: 'Creepster', cursive; font-size: 1.1em; letter-spacing: 1px; }
         .blackhole-bubble { background: radial-gradient(circle, #000 0%, #2e1065 120%); border: 1px solid #7c3aed; box-shadow: 0 0 15px rgba(76, 29, 149, 0.6); color: #ddd6fe !important; font-family: 'Orbitron', sans-serif; letter-spacing: -0.5px; }
         /* Nullscapes Bubble */
-        .nullscapes-bubble { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); color: #f1f5f9 !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; clip-path: polygon(5% 0%, 100% 0%, 100% 85%, 95% 100%, 0% 100%); border-radius: 0 !important; }
+        .nullscapes-bubble { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #94a3b8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); color: #f1f5f9 !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; clip-path: polygon(5% 0%, 100% 0%, 100% 85%, 95% 100%, 0% 100%); border-radius: 0 !important; }
 
         /* UI Elements */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
@@ -231,7 +233,7 @@
         @keyframes bounceIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
         @keyframes ice-drift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
-        @keyframes debris-rise { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; } }
+        @keyframes debris-rise { 0% { backgroundPositionY: '100%' } 100% { backgroundPositionY: '-20%' } }
 
         /* Dynamic Theme Classes */
         .theme-border { border-color: var(--brand-main) !important; }
