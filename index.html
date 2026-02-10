@@ -28,7 +28,7 @@
                         'grid-scroll': 'grid-scroll 20s linear infinite',
                         'crt-flicker': 'crt-flicker 0.1s infinite',
                         'ice-drift': 'ice-drift 20s linear infinite',
-                        'debris-rise': 'debris-rise 15s linear infinite',
+                        'debris-rise': 'debris-rise 10s linear infinite',
                     },
                     keyframes: {
                         glitch: {
@@ -58,8 +58,10 @@
                             '100%': { backgroundPosition: '100% 100%' }
                         },
                         'debris-rise': {
-                            '0%': { backgroundPositionY: '100%' },
-                            '100%': { backgroundPositionY: '-20%' }
+                            '0%': { transform: 'translateY(100vh) rotate(0deg)', opacity: '0' },
+                            '20%': { opacity: '1' },
+                            '80%': { opacity: '1' },
+                            '100%': { transform: 'translateY(-20vh) rotate(45deg)', opacity: '0' }
                         }
                     }
                 }
@@ -92,39 +94,77 @@
         
         /* --- ADMIN THEME BACKGROUNDS --- */
 
-        /* NULLSCAPES THEME (GD Style - No Spin) */
+        /* NULLSCAPES THEME (Geometric Overhaul) */
         body.theme-nullscapes {
             background-color: #000;
-            background-image: 
-                radial-gradient(circle at 50% 0%, #ffffff 0%, #cbd5e1 15%, #64748b 30%, #0f172a 60%, #000000 100%),
-                repeating-conic-gradient(from 0deg at 50% 0%, transparent 0deg, transparent 5deg, rgba(255,255,255,0.02) 6deg, transparent 7deg);
-            background-size: 100% 100%;
+            /* Radiant Void Light Source */
+            background-image: radial-gradient(circle at 50% -10%, #e2e8f0 0%, #94a3b8 15%, #475569 30%, #0f172a 60%, #000000 90%);
             background-attachment: fixed;
             position: relative;
         }
+
+        /* The Spikes (Geometric Clip Path) */
         body.theme-nullscapes::before {
-            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
-            background: repeating-linear-gradient(110deg, #020617 0%, #020617 5%, transparent 5%, transparent 10%), repeating-linear-gradient(70deg, #020617 0%, #020617 5%, transparent 5%, transparent 10%);
-            background-image: 
-                linear-gradient(to top right, transparent 49%, #000 50%), linear-gradient(to top left, transparent 49%, #000 50%),
-                linear-gradient(to top right, transparent 49%, #020617 50%), linear-gradient(to top left, transparent 49%, #020617 50%),
-                linear-gradient(to top right, transparent 49%, #1e293b 50%), linear-gradient(to top left, transparent 49%, #1e293b 50%);
-            background-size: 60px 100%, 60px 100%, 90px 80%, 90px 80%, 150px 60%, 150px 60%;
-            background-position: 0 bottom, 30px bottom, 10px bottom, 55px bottom, 20px bottom, 95px bottom;
-            background-repeat: repeat-x; z-index: -1; filter: drop-shadow(0 -5px 10px rgba(0,0,0,0.8));
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%; /* Height of spikes */
+            background: #000;
+            z-index: -1;
+            /* Complex, erratic spike pattern */
+            clip-path: polygon(
+                0% 100%, 0% 85%, 2% 40%, 4% 90%, 5% 20%, 7% 85%, 9% 10%, 11% 90%, 
+                13% 35%, 15% 85%, 18% 5%, 20% 90%, 23% 40%, 25% 95%, 27% 15%, 30% 85%,
+                32% 25%, 35% 90%, 38% 10%, 40% 85%, 43% 35%, 45% 95%, 47% 5%, 50% 90%,
+                52% 25%, 55% 85%, 58% 15%, 60% 90%, 63% 40%, 65% 95%, 67% 10%, 70% 85%,
+                73% 30%, 75% 90%, 78% 20%, 80% 85%, 83% 5%, 85% 90%, 88% 35%, 90% 95%,
+                92% 15%, 95% 85%, 97% 40%, 100% 90%, 100% 100%
+            );
+            filter: drop-shadow(0 0 20px rgba(0,0,0,1));
         }
+
+        /* Secondary Layer (Dark Grey Spikes for Depth) */
         body.theme-nullscapes::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(45deg, transparent 45%, #334155 45%, #334155 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #334155 45%, #334155 55%, transparent 55%);
-            background-size: 40px 40px; background-position: 0 0; opacity: 0.2;
-            mask-image: linear-gradient(to top, black, transparent); 
-            animation: debris-rise 10s linear infinite; /* Verified vertical rise */
-            pointer-events: none; z-index: -2;
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: #0f172a;
+            z-index: -2;
+            opacity: 0.5;
+            clip-path: polygon(
+                0% 100%, 1% 90%, 3% 50%, 6% 95%, 8% 30%, 10% 90%, 12% 40%, 14% 95%, 
+                17% 20%, 19% 90%, 22% 50%, 24% 95%, 26% 10%, 29% 90%, 31% 40%, 34% 95%,
+                36% 25%, 39% 90%, 41% 15%, 44% 95%, 46% 45%, 49% 90%, 51% 20%, 54% 95%,
+                56% 50%, 59% 90%, 61% 15%, 64% 95%, 66% 40%, 69% 90%, 71% 25%, 74% 95%,
+                76% 50%, 79% 90%, 81% 10%, 84% 95%, 86% 40%, 89% 90%, 91% 20%, 94% 95%,
+                96% 50%, 99% 90%, 100% 100%
+            );
+        }
+
+        /* Floating Particles Container (Pseudo-element on wrapper) */
+        .chat-container.theme-nullscapes-particles::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%);
+            background-size: 80px 80px;
+            opacity: 0.15;
+            animation: debris-rise 15s linear infinite;
+            pointer-events: none;
+            z-index: -1;
         }
 
         /* ICE THEME */
         body.theme-ice { 
-            background-color: #000; background-image: radial-gradient(circle at 50% 100%, #0e7490 0%, #083344 40%, #000000 100%);
+            background-color: #000;
+            background-image: radial-gradient(circle at 50% 100%, #0e7490 0%, #083344 40%, #000000 100%);
             position: relative; overflow: hidden;
         }
         body.theme-ice::before {
@@ -141,6 +181,7 @@
             background-repeat: repeat; background-size: 200px 200px; animation: embers 4s linear infinite; z-index: -1; pointer-events: none;
         }
         body.theme-fire::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%; background: linear-gradient(to top, rgba(220, 38, 38, 0.15), transparent); z-index: -2; pointer-events: none; }
+        @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
         
         /* GLITCH THEME */
         body.theme-glitch { 
@@ -209,8 +250,8 @@
         .ice-bubble { background: linear-gradient(135deg, rgba(8, 51, 68, 0.9), rgba(21, 94, 117, 0.9)); border: 1px solid #22d3ee; box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); color: #a5f3fc !important; font-family: 'Cinzel', serif; font-weight: bold; }
         .fire-bubble { background: linear-gradient(to top, #450a0a, #7f1d1d); border: 1px solid #f97316; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); color: #fbbf24 !important; font-family: 'Creepster', cursive; font-size: 1.1em; letter-spacing: 1px; }
         .blackhole-bubble { background: radial-gradient(circle, #000 0%, #2e1065 120%); border: 1px solid #7c3aed; box-shadow: 0 0 15px rgba(76, 29, 149, 0.6); color: #ddd6fe !important; font-family: 'Orbitron', sans-serif; letter-spacing: -0.5px; }
-        /* Nullscapes Bubble */
-        .nullscapes-bubble { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #94a3b8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); color: #f1f5f9 !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; clip-path: polygon(5% 0%, 100% 0%, 100% 85%, 95% 100%, 0% 100%); border-radius: 0 !important; }
+        /* Nullscapes Bubble - Sharp, Angular, Dark */
+        .nullscapes-bubble { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); color: #f1f5f9 !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; clip-path: polygon(5% 0%, 100% 0%, 100% 85%, 95% 100%, 0% 100%); border-radius: 0 !important; }
 
         /* UI Elements */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
@@ -233,7 +274,7 @@
         @keyframes bounceIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
         @keyframes ice-drift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
-        @keyframes debris-rise { 0% { backgroundPositionY: '100%' } 100% { backgroundPositionY: '-20%' } }
+        @keyframes debris-rise { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-20vh) rotate(45deg); opacity: 0; } }
 
         /* Dynamic Theme Classes */
         .theme-border { border-color: var(--brand-main) !important; }
