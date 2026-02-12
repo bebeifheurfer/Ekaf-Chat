@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +28,8 @@
                         'grid-scroll': 'grid-scroll 20s linear infinite',
                         'crt-flicker': 'crt-flicker 0.1s infinite',
                         'ice-drift': 'ice-drift 20s linear infinite',
-                        'debris-rise': 'debris-rise 10s linear infinite',
+                        'snow-fall': 'snow-fall 10s linear infinite',
+                        'aurora-wave': 'aurora-wave 10s ease-in-out infinite alternate',
                     },
                     keyframes: {
                         glitch: {
@@ -57,17 +58,20 @@
                             '0%': { backgroundPosition: '0% 0%' },
                             '100%': { backgroundPosition: '100% 100%' }
                         },
-                        'debris-rise': {
-                            '0%': { transform: 'translateY(100vh) rotate(0deg)', opacity: '0' },
-                            '20%': { opacity: '1' },
-                            '80%': { opacity: '1' },
-                            '100%': { transform: 'translateY(-20vh) rotate(45deg)', opacity: '0' }
+                        'snow-fall': {
+                            '0%': { backgroundPosition: '0 0, 0 0, 0 0' },
+                            '100%': { backgroundPosition: '100px 600px, 50px 300px, -100px 400px' }
+                        },
+                        'aurora-wave': {
+                            '0%': { opacity: '0.6', transform: 'skewY(-2deg) scaleY(1)' },
+                            '100%': { opacity: '0.9', transform: 'skewY(-4deg) scaleY(1.1)' }
                         }
                     }
                 }
             }
         }
     </script>
+
 
     <style>
         /* Import Fonts */
@@ -84,6 +88,7 @@
             --brand-dim: rgba(249, 115, 22, 0.2);
         }
 
+
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #09090b; 
@@ -94,84 +99,55 @@
         
         /* --- ADMIN THEME BACKGROUNDS --- */
 
-        /* NULLSCAPES THEME (Geometric Overhaul) */
-        body.theme-nullscapes {
-            background-color: #000;
-            /* Radiant Void Light Source */
-            background-image: radial-gradient(circle at 50% -10%, #e2e8f0 0%, #94a3b8 15%, #475569 30%, #0f172a 60%, #000000 90%);
-            background-attachment: fixed;
+
+        /* ICE THEME (Remastered + Aurora) */
+        body.theme-ice { 
+            background-color: #020617;
+            background-image: radial-gradient(circle at 50% 100%, #0e7490 0%, #083344 40%, #000000 100%);
             position: relative;
         }
+        body.theme-ice::before {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to bottom, rgba(165, 243, 252, 0.1), rgba(8, 145, 178, 0.4)); z-index: -1;
+            clip-path: polygon(0% 100%, 5% 40%, 10% 85%, 15% 20%, 20% 90%, 25% 30%, 30% 85%, 35% 10%, 40% 85%, 45% 25%, 50% 90%, 55% 15%, 60% 85%, 65% 35%, 70% 90%, 75% 10%, 80% 85%, 85% 30%, 90% 95%, 95% 45%, 100% 100%);
+            filter: drop-shadow(0 0 10px #22d3ee); backdrop-filter: blur(2px);
+        }
+        body.theme-ice::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 70%;
+            background: linear-gradient(100deg, transparent 0%, rgba(34, 211, 238, 0.1) 20%, rgba(139, 92, 246, 0.1) 50%, rgba(34, 211, 238, 0.1) 80%, transparent 100%);
+            background-size: 200% 100%; filter: blur(40px); animation: aurora-wave 8s ease-in-out infinite alternate; z-index: -2; pointer-events: none;
+        }
+        .chat-container.theme-ice-snow::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(2px 2px at 20px 30px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #a5f3fc, rgba(0,0,0,0)), radial-gradient(3px 3px at 50px 160px, #ecfeff, rgba(0,0,0,0));
+            background-size: 200px 200px, 150px 150px, 300px 300px; animation: snow-fall 10s linear infinite; z-index: 0; opacity: 0.8; pointer-events: none;
+        }
 
-        /* The Spikes (Geometric Clip Path) */
+
+        /* NULLSCAPES THEME (STATIC GD Style) */
+        body.theme-nullscapes {
+            background-color: #000;
+            background-image: radial-gradient(circle at 50% -10%, #e2e8f0 0%, #94a3b8 15%, #475569 30%, #0f172a 60%, #000000 90%);
+            background-attachment: fixed; position: relative;
+        }
+        /* Static Spikes */
         body.theme-nullscapes::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 45%; /* Height of spikes */
-            background: #000;
-            z-index: -1;
-            /* Complex, erratic spike pattern */
-            clip-path: polygon(
-                0% 100%, 0% 85%, 2% 40%, 4% 90%, 5% 20%, 7% 85%, 9% 10%, 11% 90%, 
-                13% 35%, 15% 85%, 18% 5%, 20% 90%, 23% 40%, 25% 95%, 27% 15%, 30% 85%,
-                32% 25%, 35% 90%, 38% 10%, 40% 85%, 43% 35%, 45% 95%, 47% 5%, 50% 90%,
-                52% 25%, 55% 85%, 58% 15%, 60% 90%, 63% 40%, 65% 95%, 67% 10%, 70% 85%,
-                73% 30%, 75% 90%, 78% 20%, 80% 85%, 83% 5%, 85% 90%, 88% 35%, 90% 95%,
-                92% 15%, 95% 85%, 97% 40%, 100% 90%, 100% 100%
-            );
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 45%; background: #000; z-index: -1;
+            clip-path: polygon(0% 100%, 0% 85%, 2% 40%, 4% 90%, 5% 20%, 7% 85%, 9% 10%, 11% 90%, 13% 35%, 15% 85%, 18% 5%, 20% 90%, 23% 40%, 25% 95%, 27% 15%, 30% 85%, 32% 25%, 35% 90%, 38% 10%, 40% 85%, 43% 35%, 45% 95%, 47% 5%, 50% 90%, 52% 25%, 55% 85%, 58% 15%, 60% 90%, 63% 40%, 65% 95%, 67% 10%, 70% 85%, 73% 30%, 75% 90%, 78% 20%, 80% 85%, 83% 5%, 85% 90%, 88% 35%, 90% 95%, 92% 15%, 95% 85%, 97% 40%, 100% 90%, 100% 100%);
             filter: drop-shadow(0 0 20px rgba(0,0,0,1));
         }
-
-        /* Secondary Layer (Dark Grey Spikes for Depth) */
+        /* Static Debris Background */
         body.theme-nullscapes::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 35%;
-            background: #0f172a;
-            z-index: -2;
-            opacity: 0.5;
-            clip-path: polygon(
-                0% 100%, 1% 90%, 3% 50%, 6% 95%, 8% 30%, 10% 90%, 12% 40%, 14% 95%, 
-                17% 20%, 19% 90%, 22% 50%, 24% 95%, 26% 10%, 29% 90%, 31% 40%, 34% 95%,
-                36% 25%, 39% 90%, 41% 15%, 44% 95%, 46% 45%, 49% 90%, 51% 20%, 54% 95%,
-                56% 50%, 59% 90%, 61% 15%, 64% 95%, 66% 40%, 69% 90%, 71% 25%, 74% 95%,
-                76% 50%, 79% 90%, 81% 10%, 84% 95%, 86% 40%, 89% 90%, 91% 20%, 94% 95%,
-                96% 50%, 99% 90%, 100% 100%
-            );
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 35%; background: #0f172a; z-index: -2; opacity: 0.5;
+            clip-path: polygon(0% 100%, 1% 90%, 3% 50%, 6% 95%, 8% 30%, 10% 90%, 12% 40%, 14% 95%, 17% 20%, 19% 90%, 22% 50%, 24% 95%, 26% 10%, 29% 90%, 31% 40%, 34% 95%, 36% 25%, 39% 90%, 41% 15%, 44% 95%, 46% 45%, 49% 90%, 51% 20%, 54% 95%, 56% 50%, 59% 90%, 61% 15%, 64% 95%, 66% 40%, 69% 90%, 71% 25%, 74% 95%, 76% 50%, 79% 90%, 81% 10%, 84% 95%, 86% 40%, 89% 90%, 91% 20%, 94% 95%, 96% 50%, 99% 90%, 100% 100%);
         }
-
-        /* Floating Particles Container (Pseudo-element on wrapper) */
+        /* Static Particles Overlay */
         .chat-container.theme-nullscapes-particles::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%),
-                linear-gradient(-45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%);
-            background-size: 80px 80px;
-            opacity: 0.15;
-            animation: debris-rise 15s linear infinite;
-            pointer-events: none;
-            z-index: -1;
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%), linear-gradient(-45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%);
+            background-size: 80px 80px; opacity: 0.2; pointer-events: none; z-index: -1;
         }
 
-        /* ICE THEME */
-        body.theme-ice { 
-            background-color: #000;
-            background-image: radial-gradient(circle at 50% 100%, #0e7490 0%, #083344 40%, #000000 100%);
-            position: relative; overflow: hidden;
-        }
-        body.theme-ice::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background-image: repeating-linear-gradient(45deg, rgba(34, 211, 238, 0.03) 0px, rgba(34, 211, 238, 0.03) 2px, transparent 2px, transparent 20px), repeating-linear-gradient(-45deg, rgba(34, 211, 238, 0.03) 0px, rgba(34, 211, 238, 0.03) 2px, transparent 2px, transparent 40px);
-            animation: spin-slower 60s linear infinite; pointer-events: none; z-index: -1;
-        }
 
         /* FIRE THEME */
         body.theme-fire { background: linear-gradient(to top, #450a0a, #2b0606, #09090b); position: relative; }
@@ -200,6 +176,7 @@
             pointer-events: none; z-index: -2;
         }
 
+
         /* BLACK HOLE THEME */
         body.theme-blackhole { 
             background-color: #000000;
@@ -216,15 +193,18 @@
             background: #000; border-radius: 50%; z-index: -1; box-shadow: 0 0 50px #000, inset 0 0 60px #4c1d95; border: 1px solid rgba(124, 58, 237, 0.3);
         }
 
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--brand-main); }
 
+
         .chat-container { height: calc(100vh - 160px); }
         .message-appear { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
 
         /* --- TEXT STYLES --- */
         .text-rainbow {
@@ -242,16 +222,19 @@
         /* Nullscapes Text */
         .text-nullscapes { color: #f8fafc !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
 
+
         .rainbow-mode { animation: rainbow-border 4s linear infinite; border-width: 2px !important; background-color: #18181b !important; color: #fff !important; }
         .rainbow-bubble { animation: rainbow-bg 4s linear infinite; color: white !important; border: none !important; font-weight: 700; }
+
 
         /* Bubble Specifics */
         .glitch-bubble { background-color: rgba(5, 20, 5, 0.95); border: 1px solid #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.4); color: #22c55e !important; font-family: 'VT323', monospace; font-size: 1.1em; letter-spacing: 0.5px; }
         .ice-bubble { background: linear-gradient(135deg, rgba(8, 51, 68, 0.9), rgba(21, 94, 117, 0.9)); border: 1px solid #22d3ee; box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); color: #a5f3fc !important; font-family: 'Cinzel', serif; font-weight: bold; }
         .fire-bubble { background: linear-gradient(to top, #450a0a, #7f1d1d); border: 1px solid #f97316; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); color: #fbbf24 !important; font-family: 'Creepster', cursive; font-size: 1.1em; letter-spacing: 1px; }
         .blackhole-bubble { background: radial-gradient(circle, #000 0%, #2e1065 120%); border: 1px solid #7c3aed; box-shadow: 0 0 15px rgba(76, 29, 149, 0.6); color: #ddd6fe !important; font-family: 'Orbitron', sans-serif; letter-spacing: -0.5px; }
-        /* Nullscapes Bubble - Sharp, Angular, Dark */
+        /* Nullscapes Bubble */
         .nullscapes-bubble { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); color: #f1f5f9 !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; clip-path: polygon(5% 0%, 100% 0%, 100% 85%, 95% 100%, 0% 100%); border-radius: 0 !important; }
+
 
         /* UI Elements */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
@@ -260,6 +243,7 @@
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--brand-main); }
         input:checked + .slider:before { transform: translateX(20px); }
+
 
         .media-content { width: 100%; max-width: 500px; height: auto; border-radius: 12px; margin-top: 8px; display: block; object-fit: cover; border: 1px solid #3f3f46; background: #000; }
         .aspect-video { aspect-ratio: 16 / 9; }
@@ -274,7 +258,9 @@
         @keyframes bounceIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
         @keyframes ice-drift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
-        @keyframes debris-rise { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-20vh) rotate(45deg); opacity: 0; } }
+        @keyframes snow-fall { 0% { background-position: 0 0, 0 0, 0 0; } 100% { background-position: 100px 600px, 50px 300px, -100px 400px; } }
+        @keyframes aurora-wave { 0% { opacity: 0.6; transform: skewY(-2deg) scaleY(1); } 100% { opacity: 0.9; transform: skewY(-4deg) scaleY(1.1); } }
+
 
         /* Dynamic Theme Classes */
         .theme-border { border-color: var(--brand-main) !important; }
@@ -288,13 +274,16 @@
 </head>
 <body class="bg-zinc-950 text-zinc-200 flex flex-col h-screen">
 
+
     <audio id="global-audio-player" class="hidden" preload="auto"></audio>
     <audio id="theme-audio-player" class="hidden" loop preload="auto"></audio>
+
 
     <div id="audio-toast" class="fixed top-20 right-6 z-50 hidden audio-toast cursor-pointer bg-brand text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border-2 border-white/20">
         <div class="text-2xl">🔊</div>
         <div><p class="font-black uppercase text-xs tracking-wider">Audio Broadcast</p><p class="text-sm font-medium opacity-90">Click to listen!</p></div>
     </div>
+
 
     <!-- Header -->
     <header class="bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-800 px-6 py-4 flex justify-between items-center shadow-lg z-20">
@@ -326,6 +315,7 @@
         </div>
     </header>
 
+
     <!-- Chat View -->
     <main id="chat-feed" class="flex-grow overflow-y-auto p-4 space-y-6 chat-container relative z-10">
         <div id="loading-state" class="h-full flex flex-col items-center justify-center text-zinc-600">
@@ -333,6 +323,7 @@
             <p class="font-bold animate-pulse uppercase tracking-widest text-xs">Loading The Void...</p>
         </div>
     </main>
+
 
     <!-- Input -->
     <footer class="bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-800 p-4 pb-6 z-20 relative">
@@ -343,6 +334,7 @@
             </div>
             <button id="cancel-reply" class="text-zinc-500 hover:text-white font-bold text-lg leading-none">&times;</button>
         </div>
+
 
         <form id="chat-form" class="max-w-5xl mx-auto flex gap-3">
             <input type="file" id="chat-file-input" class="hidden" accept="image/*,video/*">
@@ -360,6 +352,7 @@
         </form>
     </footer>
 
+
     <!-- Message Action Modal -->
     <div id="message-menu" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm" onclick="this.classList.add('hidden')">
         <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 w-64 shadow-2xl space-y-2 transform scale-100 transition-all" onclick="event.stopPropagation()">
@@ -370,6 +363,7 @@
             <button id="menu-ban-btn" class="w-full text-left px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-lg font-bold transition-colors flex items-center gap-2 hidden">BAN USER</button>
         </div>
     </div>
+
 
     <!-- Active Users Modal -->
     <div id="users-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden" onclick="this.classList.add('hidden')">
@@ -387,6 +381,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
@@ -413,6 +408,7 @@
                     </div>
                 </div>
 
+
                 <div id="admin-theme-selector-area" class="hidden mb-6 pb-6 border-b border-zinc-800">
                     <label class="text-[10px] font-bold text-brand uppercase mb-2 block">Admin Theme (Changes BG)</label>
                     <div class="flex gap-3 justify-center flex-wrap">
@@ -431,6 +427,7 @@
                     </div>
                 </div>
 
+
                 <h3 class="text-xs font-bold uppercase text-zinc-500 mb-4 tracking-wider">Profile Setup</h3>
                 <div class="mb-4">
                     <label class="text-[10px] font-bold text-zinc-400 uppercase mb-1 block">Display Name</label>
@@ -447,6 +444,7 @@
                 <button id="save-name" class="w-full bg-brand text-white py-3 rounded-lg font-bold uppercase tracking-wide hover:bg-brand-hover transition-colors shadow-lg shadow-brand/20 theme-bg">Save Profile</button>
             </section>
 
+
             <!-- Dev Section -->
             <section id="dev-console" class="hidden p-4 border-2 border-dashed border-zinc-700 rounded-xl bg-black/20">
                 <h3 class="text-xs font-bold uppercase text-brand mb-4 tracking-wider">Admin Controls</h3>
@@ -456,12 +454,14 @@
                     <div id="online-users-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
                 </div>
 
+
                 <div class="mb-4 p-3 bg-red-950/20 rounded-lg border border-red-900/30">
                     <p class="text-[10px] font-bold text-red-500 uppercase mb-2">Banned Users</p>
                     <div id="banned-users-list" class="space-y-1 max-h-32 overflow-y-auto">
                         <div class="text-zinc-600 text-xs italic">Loading...</div>
                     </div>
                 </div>
+
 
                 <div class="space-y-4">
                     <!-- Global Audio Control -->
@@ -475,6 +475,7 @@
                             <button id="btn-broadcast-audio" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20">PLAY</button>
                         </div>
                     </div>
+
 
                     <div class="p-3 bg-red-950/20 rounded-lg border border-red-900/30">
                         <label class="text-[10px] font-bold text-red-400 uppercase">Broadcast Identity</label>
@@ -497,10 +498,12 @@
                         <button id="add-bot-btn" class="w-full bg-zinc-800 text-zinc-300 py-2 rounded-lg text-xs font-bold hover:bg-zinc-700">Deploy Bot</button>
                     </div>
 
+
                     <div class="mt-4 border-t border-zinc-800 pt-4">
                         <p class="text-[10px] font-bold text-zinc-500 uppercase mb-2">Active Cloud Bots</p>
                         <div id="active-bots-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
                     </div>
+
 
                     <div class="pt-2 border-t border-zinc-800">
                         <button id="clear-chat-btn" class="w-full bg-red-500/10 text-red-500 border border-red-500/50 py-3 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">⚠️ CLEAR CHAT ⚠️</button>
@@ -510,11 +513,14 @@
         </div>
     </div>
 
+
     <script type="module">
         const SB_URL = "https://nemwfckuaouayiotykds.supabase.co"; 
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lbXdmY2t1YW91YXlpb3R5a2RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3ODM4MjMsImV4cCI6MjA4NTM1OTgyM30.gQf9P1mP7U1NK0pzBZ--W7x9CiL6yVz0_emvWWSpLBI"; 
 
+
         function generateAnonName() { return "Anon-" + Math.floor(100 + Math.random() * 900); }
+
 
         let sbClient;
         let currentUser = localStorage.getItem('ekaf_username') || generateAnonName();
@@ -537,9 +543,11 @@
         let renderedMessageIds = new Set(); 
         let presenceChannel = null;
 
+
         let lastMessageTime = 0;
         const SPAM_COOLDOWN_MS = 2000;
         const BLOCKED_WORDS = ["badword", "naughty", "slur_placeholder"]; 
+
 
         const themes = {
             red: { main: '#ef4444', hover: '#dc2626', textClass: 'text-red-500' },
@@ -550,6 +558,7 @@
             purple: { main: '#a855f7', hover: '#9333ea', textClass: 'text-purple-500' }
         };
 
+
         const adminThemes = {
             rainbow: { textClass: 'text-rainbow', bgClass: '', audioUrl: '' }, 
             glitch: { textClass: 'text-glitch', bgClass: 'theme-glitch', audioUrl: '' },
@@ -559,16 +568,19 @@
             nullscapes: { textClass: 'text-nullscapes', bgClass: 'theme-nullscapes', audioUrl: '' }
         };
 
+
         function isClean(text) {
             const lower = text.toLowerCase();
             return !BLOCKED_WORDS.some(word => lower.includes(word));
         }
+
 
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
         const onlineBadge = document.getElementById('online-badge');
         const themeAudioPlayer = document.getElementById('theme-audio-player');
         const themeVolumeSlider = document.getElementById('theme-volume');
+
 
         // Volume Control Logic
         themeVolumeSlider.oninput = (e) => {
@@ -578,6 +590,7 @@
         // Restore volume on load
         themeAudioPlayer.volume = localStorage.getItem('ekaf_theme_volume') || 0.3;
         themeVolumeSlider.value = themeAudioPlayer.volume;
+
 
         window.setTheme = (colorName) => {
             const t = themes[colorName];
@@ -597,6 +610,7 @@
             if (!isAdmin && !isThemeUser && presenceChannel) trackPresence('active');
         };
 
+
         window.setAdminTheme = (themeName) => {
             if (!adminThemes[themeName]) return;
             document.body.classList.remove('theme-glitch', 'theme-ice', 'theme-fire', 'theme-blackhole', 'theme-nullscapes');
@@ -614,6 +628,12 @@
                 themeAudioPlayer.pause();
             }
             
+            const chatContainer = document.querySelector('.chat-container');
+            chatContainer.classList.remove('theme-nullscapes-particles', 'theme-ice-snow'); // Clear all
+            if (themeName === 'nullscapes') chatContainer.classList.add('theme-nullscapes-particles');
+            if (themeName === 'ice') chatContainer.classList.add('theme-ice-snow');
+
+
             if (themeName === 'rainbow') startRainbowCycle();
             else {
                 stopRainbowCycle();
@@ -626,6 +646,7 @@
             if ((isAdmin || isThemeUser) && presenceChannel) trackPresence('active');
         };
 
+
         function startRainbowCycle() {
             if (rainbowInterval) clearInterval(rainbowInterval);
             rainbowInterval = setInterval(() => {
@@ -636,9 +657,11 @@
             }, 50);
         }
 
+
         function stopRainbowCycle() {
             if (rainbowInterval) { clearInterval(rainbowInterval); rainbowInterval = null; }
         }
+
 
         async function init() {
             if (SB_URL.includes("PASTE_YOUR_URL_HERE") || !SB_URL) {
@@ -646,6 +669,7 @@
                 statusText.textContent = "Keys Missing";
                 return;
             }
+
 
             try {
                 sbClient = supabase.createClient(SB_URL, SB_KEY);
@@ -657,10 +681,13 @@
                     if (vipList) vipList.forEach(u => knownVips.add(u.username));
                 } catch (e) { console.warn("Admins table missing or error", e); }
 
+
                 await syncSecurity();
+
 
                 const { data: initialMsgs, error } = await sbClient.from('messages').select('*').order('created_at', { ascending: false }).limit(50);
                 if (error) throw error; 
+
 
                 const loader = document.getElementById('loading-state');
                 if (loader) loader.remove();
@@ -679,6 +706,7 @@
                 subscribeToChanges();
                 startPolling();
 
+
                 const storedName = localStorage.getItem('ekaf_username');
                 if (storedName) document.getElementById('name-input').value = storedName;
                 
@@ -689,8 +717,10 @@
                     trackPresence('active');
                 }
 
+
                 updateHeaderProfile();
                 try { loadBots(); } catch (e) {}
+
 
             } catch (err) {
                 console.error(err);
@@ -700,6 +730,7 @@
                 if (feed) feed.innerHTML = `<div class="text-red-500 text-center mt-10 p-4 bg-red-900/20 rounded-xl border border-red-900/50"><p class="font-bold">Failed to load messages</p><p class="text-xs text-red-300 mt-1">${err.message}</p><p class="text-[10px] text-zinc-500 mt-2">Check the SQL Repair Script</p></div>`;
             }
         }
+
 
         async function syncSecurity() {
             try {
@@ -726,6 +757,7 @@
             } catch (e) {}
         }
 
+
         function startPolling() {
             setInterval(async () => {
                 await syncSecurity();
@@ -733,6 +765,7 @@
                 if(data) data.reverse().forEach(msg => { if (!renderedMessageIds.has(msg.id)) renderMessage(msg, true); });
             }, 2000); 
         }
+
 
         function updateHeaderProfile() {
             document.getElementById('display-name').textContent = currentUser;
@@ -744,6 +777,7 @@
                 img.classList.add('hidden');
             }
         }
+
 
         async function trackPresence(status = 'active') {
             if (presenceChannel) await sbClient.removeChannel(presenceChannel);
@@ -764,6 +798,7 @@
         }
         
         document.addEventListener('visibilitychange', () => { trackPresence(document.hidden ? 'idle' : 'active'); });
+
 
         function subscribeToChanges() {
             const channel = sbClient.channel('global_chat_room');
@@ -794,12 +829,14 @@
                 .subscribe();
         }
 
+
         function playAudio(url) {
             const player = document.getElementById('global-audio-player');
             const toast = document.getElementById('audio-toast');
             player.pause(); player.currentTime = 0; player.src = url; player.volume = 1.0; 
             player.play().catch(() => { toast.classList.remove('hidden'); toast.onclick = () => { player.play(); toast.classList.add('hidden'); }; setTimeout(() => toast.classList.add('hidden'), 10000); });
         }
+
 
         document.getElementById('admin-audio-input').onchange = (e) => { if (e.target.files[0]) document.getElementById('audio-file-name').textContent = e.target.files[0].name; };
         document.getElementById('btn-broadcast-audio').onclick = async () => {
@@ -819,15 +856,18 @@
             } catch (err) { alert("Failed: " + err.message); } finally { btn.innerText = "PLAY"; btn.disabled = false; }
         };
 
+
         function applyKick() {
             document.body.innerHTML = `<div class="flex h-screen items-center justify-center bg-black text-red-600 flex-col gap-6 text-center"><div class="text-6xl">🥾</div><div class="text-4xl font-black uppercase">KICKED</div><button onclick="location.reload()" class="bg-white text-black px-6 py-3 rounded-lg font-bold">Rejoin</button></div>`;
             sbClient.removeAllChannels();
         }
 
+
         function applyBan() {
             document.body.innerHTML = `<div class="flex h-screen items-center justify-center bg-red-950 text-white flex-col gap-6 text-center"><div class="text-6xl">🚫</div><div class="text-4xl font-black uppercase">BANNED</div></div>`;
             sbClient.removeAllChannels();
         }
+
 
         async function sendMsg(text, user = currentUser, color = "text-brand", isBroadcast = false) {
             if (!sbClient) return;
@@ -840,6 +880,7 @@
             if (isAdmin || isThemeUser) finalColor = `admin-${currentAdminTheme}`; 
             if (isBroadcast) finalColor = color; 
 
+
             const { data, error } = await sbClient.from('messages').insert([{ text, user_name: user, color: finalColor, is_broadcast: isBroadcast, avatar: currentAvatar, reply_to: replyingTo }]).select().single();
             if (data) {
                 const empty = document.getElementById('empty-state');
@@ -848,6 +889,7 @@
             }
             cancelReply();
         }
+
 
         function setReply(id, user, text) {
             replyingTo = { id, user, text };
@@ -858,8 +900,10 @@
             document.getElementById('message-menu').classList.add('hidden'); 
         }
 
+
         function cancelReply() { replyingTo = null; document.getElementById('reply-bar').classList.add('hidden'); }
         document.getElementById('cancel-reply').onclick = cancelReply;
+
 
         window.toggleMute = async (targetUser) => {
             if (!isAdmin) return;
@@ -868,11 +912,13 @@
             document.getElementById('message-menu').classList.add('hidden');
         };
 
+
         window.kickUser = async (targetUser) => {
             if (!isAdmin) return;
             if (confirm(`Kick ${targetUser}?`)) await sbClient.from('kicks').insert([{ user_name: targetUser }]);
             document.getElementById('message-menu').classList.add('hidden');
         };
+
 
         window.banUser = async (targetUser) => {
             if (!isAdmin) return;
@@ -880,12 +926,15 @@
             document.getElementById('message-menu').classList.add('hidden');
         };
 
+
         window.unbanUser = async (targetUser) => { if (isAdmin && confirm(`Unban ${targetUser}?`)) await sbClient.from('banned_users').delete().eq('user_name', targetUser); };
+
 
         async function loadBots() {
             const { data } = await sbClient.from('bots').select('*');
             if (data) { cloudBots = data; if (isAdmin) renderBotList(); }
         }
+
 
         function renderBotList() {
              const list = document.getElementById('active-bots-list');
@@ -899,11 +948,13 @@
         }
         window.delBot = async (id) => { if(isAdmin) await sbClient.from('bots').delete().eq('id', id); };
 
+
         function renderFullFeed(msgs) {
             const feed = document.getElementById('chat-feed');
             feed.innerHTML = '';
             msgs.forEach(msg => renderMessage(msg, false));
         }
+
 
         function formatContent(text) {
             if (text.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) return `<img src="${text}" class="media-content" onerror="this.style.display='none'">`;
@@ -915,9 +966,11 @@
             return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
+
         function renderMessage(data, isLive = true) {
             if (!data || !data.id || renderedMessageIds.has(data.id)) return;
             renderedMessageIds.add(data.id);
+
 
             const feed = document.getElementById('chat-feed');
             if(!feed) return; // Safety guard
@@ -928,6 +981,7 @@
             div.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && e.target.closest('.chat-bubble')) openMessageMenu(e, data); };
             div.className = `message-wrapper relative group`;
 
+
             if (data.is_broadcast) {
                 div.innerHTML = `<div class="flex flex-col items-center message-appear w-full my-6"><div class="bg-red-950/40 border border-red-500 text-red-400 px-8 py-4 rounded-3xl text-center shadow-[0_0_20px_rgba(239,68,68,0.2)]"><p class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-red-500">Global Broadcast • ${data.user_name}</p><p class="text-base font-bold text-white">${data.text}</p></div></div>`;
             } else {
@@ -936,6 +990,7 @@
                 let bubbleClass = isSelf 
                     ? 'bg-brand text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-brand/20 backdrop-blur-sm' 
                     : 'bg-zinc-800/80 text-zinc-200 border border-zinc-700 shadow-sm rounded-r-2xl rounded-tl-2xl backdrop-blur-sm';
+
 
                 // THEME FIX: Apply correct class based on stored color
                 let nameClass = data.color || 'text-zinc-400';
@@ -962,6 +1017,7 @@
                      bubbleClass += ' chat-bubble';
                 }
 
+
                 // Add Badges based on known lists (populated on init)
                 let badgeHTML = '';
                 if (knownAdmins.has(data.user_name)) {
@@ -970,14 +1026,17 @@
                     badgeHTML = `<span class="bg-amber-400 text-black text-[9px] font-black px-1.5 py-0.5 rounded ml-2 uppercase tracking-wide shadow-amber-400/50 shadow-sm">[VIP]</span>`;
                 }
 
+
                 const avatarHTML = data.avatar ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md">` : '';
                 let replyHTML = data.reply_to ? `<div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col"><span class="font-bold text-brand">${data.reply_to.user}</span><span class="truncate max-w-[150px] italic">${data.reply_to.text}</span></div>` : '';
+
 
                 div.innerHTML = `<div class="flex items-end gap-3 mb-1">${!isSelf ? avatarHTML : ''}<div class="flex flex-col ${isSelf ? 'items-end' : 'items-start'}"><div class="flex items-center gap-1 mb-1 opacity-90">${!isSelf ? `<span class="text-xs font-bold ${nameClass}">${data.user_name}</span>${badgeHTML}` : ''}<span class="text-[10px] text-zinc-500 font-medium ml-2 uppercase tracking-wide">${isLive ? "Just now" : "History"}</span>${isSelf ? `<span class="text-xs font-bold text-brand theme-text ml-2">You</span>${badgeHTML}` : ''}</div><div class="${bubbleClass} px-5 py-3 max-w-full text-sm break-words leading-relaxed relative">${replyHTML}${formatContent(data.text)}</div></div>${isSelf ? avatarHTML : ''}</div>`;
             }
             feed.appendChild(div);
             feed.scrollTop = feed.scrollHeight;
         }
+
 
         function openMessageMenu(e, msgData) {
             const menu = document.getElementById('message-menu');
@@ -986,6 +1045,7 @@
             
             const adminBtns = ['menu-mute-btn', 'menu-kick-btn', 'menu-ban-btn'];
             adminBtns.forEach(id => document.getElementById(id).classList.add('hidden'));
+
 
             if (isAdmin && !knownAdmins.has(msgData.user_name)) {
                 adminBtns.forEach(id => {
@@ -997,6 +1057,7 @@
                 });
             }
         }
+
 
         function renderAdminUserList() {
             const list = document.getElementById('online-users-list');
@@ -1017,6 +1078,7 @@
             const users = Object.keys(onlineUsers).sort();
             if (users.length === 0) { list.innerHTML = `<p class="text-zinc-500 text-xs text-center py-4">It's quiet in here...</p>`; return; }
 
+
             users.forEach(userKey => {
                 const session = onlineUsers[userKey][0] || {};
                 const avatarUrl = session.avatar || `https://ui-avatars.com/api/?name=${userKey}&background=27272a&color=f97316&size=128&bold=true`;
@@ -1036,9 +1098,11 @@
                      if (adminThemes[themeKey]) colorClass = adminThemes[themeKey].textClass;
                 } else if (colorClass === 'rainbow') colorClass = 'text-rainbow font-black';
 
+
                 const statusColor = (status === 'idle') ? 'bg-zinc-500' : 'bg-emerald-500';
                 const statusText = (status === 'idle') ? 'text-zinc-500' : 'text-emerald-500';
                 const statusLabel = (status === 'idle') ? 'Idle' : 'Active';
+
 
                 const item = document.createElement('div');
                 item.className = "flex items-center gap-3 p-3 bg-zinc-950/50 rounded-xl border border-zinc-800/50 hover:bg-zinc-900 transition-colors";
@@ -1046,6 +1110,7 @@
                 list.appendChild(item);
             });
         }
+
 
         function renderBannedUserList() {
             const list = document.getElementById('banned-users-list');
@@ -1057,6 +1122,7 @@
                 list.appendChild(div);
             });
         }
+
 
         document.getElementById('chat-form').onsubmit = (e) => { e.preventDefault(); const inp = document.getElementById('message-input'); if (inp.value.trim()) { sendMsg(inp.value.trim()); inp.value = ''; } };
         document.getElementById('media-btn').onclick = () => document.getElementById('chat-file-input').click();
@@ -1072,6 +1138,7 @@
             }
         };
 
+
         document.getElementById('name-input').oninput = (e) => {
             const val = e.target.value.trim();
             if (knownAdmins.has(val) || knownVips.has(val)) {
@@ -1080,6 +1147,7 @@
                 document.getElementById('password-area').classList.add('hidden');
             }
         };
+
 
         document.getElementById('save-name').onclick = async () => {
             const name = document.getElementById('name-input').value.trim();
@@ -1096,10 +1164,12 @@
                 localStorage.setItem('ekaf_avatar', currentAvatar);
             }
 
+
             // Check if full admin
             const { data: adminRecord } = await sbClient.from('admins').select('password').eq('username', name).single();
             let isFullAdmin = false;
             let isValidThemeUser = false;
+
 
             if (adminRecord && pass === adminRecord.password) {
                  isFullAdmin = true;
@@ -1110,6 +1180,7 @@
                      isValidThemeUser = true;
                  }
             }
+
 
             if (isFullAdmin) {
                 isAdmin = true; isThemeUser = true; currentUser = name;
@@ -1140,6 +1211,7 @@
             }
         };
 
+
         function finalizeLogin() {
             document.getElementById('display-name').textContent = currentUser;
             document.getElementById('settings-modal').classList.add('hidden');
@@ -1147,6 +1219,7 @@
             updateHeaderProfile(); trackPresence('active'); 
             if(isAdmin) { renderBotList(); renderBannedUserList(); }
         }
+
 
         document.getElementById('clear-chat-btn').onclick = async () => { if (isAdmin && confirm("Delete ALL messages?")) { await sbClient.from('messages').delete().gt('id', 0); location.reload(); } };
         document.getElementById('send-broadcast').onclick = () => { const inp = document.getElementById('broadcast-input'); if (inp.value.trim()) sendMsg(inp.value.trim(), "ADMIN", "text-red-600", true); };
@@ -1160,6 +1233,7 @@
         document.getElementById('close-modal').onclick = () => document.getElementById('settings-modal').classList.add('hidden');
         document.getElementById('online-badge').onclick = () => { document.getElementById('users-modal').classList.remove('hidden'); renderPublicUserList(); };
 
+
         setInterval(() => {
             if (!botsEnabled || !cloudBots.length) return;
             if (Math.random() > 0.85) {
@@ -1167,6 +1241,7 @@
                 sendMsg(b.messages[Math.floor(Math.random() * b.messages.length)], b.name, b.color);
             }
         }, 12000);
+
 
         init();
     </script>
