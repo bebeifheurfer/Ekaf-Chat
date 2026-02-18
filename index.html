@@ -30,6 +30,7 @@
                         'ice-drift': 'ice-drift 20s linear infinite',
                         'snow-fall': 'snow-fall 10s linear infinite',
                         'aurora-wave': 'aurora-wave 10s ease-in-out infinite alternate',
+                        'flash-in': 'flash-in 0.1s ease-out forwards',
                     },
                     keyframes: {
                         glitch: {
@@ -65,6 +66,10 @@
                         'aurora-wave': {
                             '0%': { opacity: '0.6', transform: 'skewY(-2deg) scaleY(1)' },
                             '100%': { opacity: '0.9', transform: 'skewY(-4deg) scaleY(1.1)' }
+                        },
+                        'flash-in': {
+                            '0%': { opacity: '0', transform: 'scale(1.1)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
                         }
                     }
                 }
@@ -141,7 +146,7 @@
             content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 35%; background: #0f172a; z-index: -2; opacity: 0.5;
             clip-path: polygon(0% 100%, 1% 90%, 3% 50%, 6% 95%, 8% 30%, 10% 90%, 12% 40%, 14% 95%, 17% 20%, 19% 90%, 22% 50%, 24% 95%, 26% 10%, 29% 90%, 31% 40%, 34% 95%, 36% 25%, 39% 90%, 41% 15%, 44% 95%, 46% 45%, 49% 90%, 51% 20%, 54% 95%, 56% 50%, 59% 90%, 61% 15%, 64% 95%, 66% 40%, 69% 90%, 71% 25%, 74% 95%, 76% 50%, 79% 90%, 81% 10%, 84% 95%, 86% 40%, 89% 90%, 91% 20%, 94% 95%, 96% 50%, 99% 90%, 100% 100%);
         }
-        /* Static Particles Overlay */
+        /* Static Particles Overlay (No Animation) */
         .chat-container.theme-nullscapes-particles::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: linear-gradient(45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%), linear-gradient(-45deg, transparent 48%, #334155 48%, #334155 52%, transparent 52%);
@@ -236,6 +241,10 @@
         .nullscapes-bubble { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); color: #f1f5f9 !important; font-family: 'Rajdhani', sans-serif; font-weight: 700; clip-path: polygon(5% 0%, 100% 0%, 100% 85%, 95% 100%, 0% 100%); border-radius: 0 !important; }
 
 
+        /* Full Screen Overlay */
+        #broadcast-overlay { pointer-events: none; transition: opacity 0.5s; }
+
+
         /* UI Elements */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -258,8 +267,10 @@
         @keyframes bounceIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes embers { 0% { background-position: 0 200px; } 100% { background-position: 0 0; } }
         @keyframes ice-drift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+        @keyframes debris-rise { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-20vh) rotate(45deg); opacity: 0; } }
         @keyframes snow-fall { 0% { background-position: 0 0, 0 0, 0 0; } 100% { background-position: 100px 600px, 50px 300px, -100px 400px; } }
         @keyframes aurora-wave { 0% { opacity: 0.6; transform: skewY(-2deg) scaleY(1); } 100% { opacity: 0.9; transform: skewY(-4deg) scaleY(1.1); } }
+        @keyframes flash-in { 0% { opacity: 0; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
 
 
         /* Dynamic Theme Classes */
@@ -277,6 +288,12 @@
 
     <audio id="global-audio-player" class="hidden" preload="auto"></audio>
     <audio id="theme-audio-player" class="hidden" loop preload="auto"></audio>
+
+
+    <!-- Global Visual Broadcast Overlay (Restored with Error Handling) -->
+    <div id="broadcast-overlay" class="fixed inset-0 z-[100] hidden bg-black flex items-center justify-center overflow-hidden">
+        <img id="broadcast-image" src="" class="w-full h-full object-contain animate-[flash-in_0.1s_ease-out_forwards]" onerror="this.parentElement.classList.add('hidden'); console.log('Visual broadcast failed to load');">
+    </div>
 
 
     <div id="audio-toast" class="fixed top-20 right-6 z-50 hidden audio-toast cursor-pointer bg-brand text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border-2 border-white/20">
@@ -304,7 +321,7 @@
                 <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1">Signed In As</p>
                 <div class="flex items-center justify-end gap-3">
                     <p id="display-name" class="text-sm font-bold text-brand theme-text">Guest</p>
-                    <img id="header-avatar" src="" class="w-10 h-10 rounded-full bg-zinc-800 object-cover hidden border-2 border-zinc-700">
+                    <img id="header-avatar" src="" class="w-10 h-10 rounded-full bg-zinc-800 object-cover hidden border-2 border-zinc-700" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random';">
                 </div>
             </div>
             <button id="open-settings" class="p-2 hover:bg-zinc-800 rounded-full transition-colors group">
@@ -473,6 +490,19 @@
                                 <span id="audio-file-name">Select MP3/WAV/OGG...</span>
                             </button>
                             <button id="btn-broadcast-audio" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20">PLAY</button>
+                        </div>
+                    </div>
+
+
+                    <!-- Visual Broadcast Control (Restored) -->
+                    <div class="p-3 bg-purple-950/20 rounded-lg border border-purple-900/30">
+                        <label class="text-[10px] font-bold text-purple-400 uppercase">Global Jumpscare</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="file" id="admin-visual-input" accept="image/*" class="hidden" autocomplete="off">
+                            <button onclick="document.getElementById('admin-visual-input').click()" class="bg-purple-900/50 hover:bg-purple-800 text-purple-200 px-3 py-2 rounded-lg text-xs border border-purple-800 transition-colors flex-grow text-left truncate">
+                                <span id="visual-file-name">Select Image...</span>
+                            </button>
+                            <button id="btn-broadcast-visual" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-purple-500 transition-colors shadow-lg shadow-purple-900/20">FLASH</button>
                         </div>
                     </div>
 
@@ -826,6 +856,7 @@
                     knownAdmins.add(payload.new.username);
                 })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audio_triggers' }, payload => playAudio(payload.new.url))
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'visual_triggers' }, payload => playVisualBroadcast(payload.new.url))
                 .subscribe();
         }
 
@@ -838,7 +869,24 @@
         }
 
 
+        function playVisualBroadcast(url) {
+            const overlay = document.getElementById('broadcast-overlay');
+            const img = document.getElementById('broadcast-image');
+            img.src = url;
+            overlay.classList.remove('hidden');
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                img.src = ""; // Clear source to stop memory leaks
+            }, 3000);
+        }
+
+
         document.getElementById('admin-audio-input').onchange = (e) => { if (e.target.files[0]) document.getElementById('audio-file-name').textContent = e.target.files[0].name; };
+        document.getElementById('admin-visual-input').onchange = (e) => { if (e.target.files[0]) document.getElementById('visual-file-name').textContent = e.target.files[0].name; };
+
+
         document.getElementById('btn-broadcast-audio').onclick = async () => {
             const file = document.getElementById('admin-audio-input').files[0];
             if (!file) return alert("Select audio first!");
@@ -854,6 +902,24 @@
                 document.getElementById('admin-audio-input').value = '';
                 document.getElementById('audio-file-name').textContent = "Select MP3/WAV/OGG...";
             } catch (err) { alert("Failed: " + err.message); } finally { btn.innerText = "PLAY"; btn.disabled = false; }
+        };
+
+
+        document.getElementById('btn-broadcast-visual').onclick = async () => {
+            const file = document.getElementById('admin-visual-input').files[0];
+            if (!file) return alert("Select image first!");
+            const btn = document.getElementById('btn-broadcast-visual');
+            btn.innerText = "SENDING..."; btn.disabled = true;
+            try {
+                const fileName = `visual_${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`; 
+                const { error: upErr } = await sbClient.storage.from('chat-uploads').upload(fileName, file);
+                if (upErr) throw upErr;
+                const { data: { publicUrl } } = sbClient.storage.from('chat-uploads').getPublicUrl(fileName);
+                await sbClient.from('visual_triggers').insert([{ url: publicUrl, triggered_by: currentUser }]);
+                alert("Visual Broadcast Sent!");
+                document.getElementById('admin-visual-input').value = '';
+                document.getElementById('visual-file-name').textContent = "Select Image...";
+            } catch (err) { alert("Failed: " + err.message); } finally { btn.innerText = "FLASH"; btn.disabled = false; }
         };
 
 
@@ -1027,7 +1093,7 @@
                 }
 
 
-                const avatarHTML = data.avatar ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md">` : '';
+                const avatarHTML = data.avatar ? `<img src="${data.avatar}" class="w-14 h-14 rounded-full bg-zinc-800 object-cover border-2 border-zinc-700 shadow-md" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random';">` : '';
                 let replyHTML = data.reply_to ? `<div class="mb-1 pl-2 border-l-2 border-brand opacity-60 text-xs flex flex-col"><span class="font-bold text-brand">${data.reply_to.user}</span><span class="truncate max-w-[150px] italic">${data.reply_to.text}</span></div>` : '';
 
 
@@ -1106,7 +1172,7 @@
 
                 const item = document.createElement('div');
                 item.className = "flex items-center gap-3 p-3 bg-zinc-950/50 rounded-xl border border-zinc-800/50 hover:bg-zinc-900 transition-colors";
-                item.innerHTML = `<div class="relative"><img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover bg-zinc-800 border border-zinc-700"><div class="absolute -bottom-1 -right-1 w-3 h-3 ${statusColor} rounded-full border-2 border-zinc-950 shadow-md shadow-emerald-500/20"></div></div><div><p class="${colorClass} text-sm font-bold leading-tight flex items-center">${userKey} ${badgeHTML}</p><p class="text-[10px] font-bold ${statusText} uppercase tracking-wider leading-tight">${statusLabel}</p></div>`;
+                item.innerHTML = `<div class="relative"><img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover bg-zinc-800 border border-zinc-700" onerror="this.src='https://ui-avatars.com/api/?name=${userKey}&background=random';"><div class="absolute -bottom-1 -right-1 w-3 h-3 ${statusColor} rounded-full border-2 border-zinc-950 shadow-md shadow-emerald-500/20"></div></div><div><p class="${colorClass} text-sm font-bold leading-tight flex items-center">${userKey} ${badgeHTML}</p><p class="text-[10px] font-bold ${statusText} uppercase tracking-wider leading-tight">${statusLabel}</p></div>`;
                 list.appendChild(item);
             });
         }
